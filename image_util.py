@@ -6,6 +6,8 @@ from pathlib import Path
 from PIL import Image
 import math 
 from subprocess import DEVNULL
+from logger import initiate_logger
+
 def get_image_names(data_path):
     files = os.listdir(data_path)
     files = [i \
@@ -18,13 +20,13 @@ def get_image_names(data_path):
     return files
 
 def make_movies_out_of_images(images, video_name,folderi,left_led_postion,center_led_position,right_led_position):
+    stimulus = []
     xL,yL,wL,hL = left_led_postion
     xC,yC,wC,hC = center_led_position
     xR,yR,wR,hR = right_led_position
     frame = cv2.imread(images[0])
     height, width, _ = frame.shape
     video = cv2.VideoWriter(video_name, 0, 40, (width, height))
-    stimulus = []
     for idx, _ in enumerate(images):
         frame = cv2.imread(images[idx])
         video.write(frame)

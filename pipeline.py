@@ -16,4 +16,4 @@ temp1=deeplabcut.analyze_videos(side_view_config_file,videos,shuffle=1, save_as_
 extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
 eye_videos = [os.path.join(data_path,f) for f in os.listdir(data_path) if re.match(r'[0-9]+EYE.avi', f)]
 temp=deeplabcut.filterpredictions(eye_config_file,eye_videos,shuffle=2)
-shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
+# shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)

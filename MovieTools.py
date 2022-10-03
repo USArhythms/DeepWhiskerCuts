@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
+from logger import log_error
+
 def extract_eye_videos(data_path,Tag):
     csv_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('filtered.csv') and Tag in f] 
     nfiles = len(csv_files)
@@ -69,7 +71,7 @@ def make_movie(trial_folder,image_names,action,folderi,*args):
     mp4_name =(trial_folder+'video'+ '.mp4')
     stimulus_valuei= action(image_names, avi_name,folderi,*args)
     image_util.convert_video(avi_name, mp4_name)
-    return stimulus_valuei
+    return stimulus_valuei,folderi
 
 def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
     all_png_folders=list_all_folders_in_directory(path)
@@ -77,6 +79,7 @@ def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
     my_file = os.path.join(path,'Lighttime.xlsx')
     trial_folders = []
     image_names = []
+    stimulus_value = {}
     for folderi in tqdm(range(nfolders),'processing videos'): 
             trial_folder = all_png_folders[folderi]
             trial_folder = os.path.join(path, trial_folder)
@@ -92,14 +95,22 @@ def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
     if parallel:
         with ProcessPoolExecutor(max_workers=ncores) as executor:
             results = []
-            arg_list = [[i]*nfolders for i in args]
-            results= executor.map(make_movie,trial_folders,image_names,[action]*nfolders,list(range(nfolders)),*arg_list)
-            stimulus_value = dict(zip(range(nfolders),results))
+            for folderi in range(nfolders): 
+                trial_folder = trial_folders[folderi]
+                result= executor.submit(make_movie,trial_folder,image_names[folderi],action,folderi,*args)
+            for result in as_completed(results):
+                try:
+                    stimulus,folderi = result.result()
+                    stimulus_value[folderi] = stimulus
+                except BaseException as ex:
+                    log_error(path,'Error during avi creation for: '+trial_folders[folderi],ex)
     else:
-        stimulus_value = {}
         for folderi in tqdm(range(nfolders),'processing videos'): 
             trial_folder = trial_folders[folderi]
-            stimulus_value[folderi] = make_movie(trial_folder,image_names[folderi],action,folderi,*args)
+            try:
+                stimulus_value[folderi],_ = make_movie(trial_folder,image_names[folderi],action,folderi,*args)
+            except BaseException as ex:
+                log_error(path,'Error during avi creation for: '+trial_folder,ex)
     return stimulus_value
 
 def make_movie_and_stimulus_file(path,parallel=False,ncores = None):
