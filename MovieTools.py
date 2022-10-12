@@ -7,11 +7,11 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor,as_completed
 from logger import log_error
 
 def extract_eye_videos(data_path,Tag):
-    csv_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('filtered.csv') and Tag in f] 
+    csv_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.csv') and Tag in f] 
     nfiles = len(csv_files)
     for filei in tqdm(range(nfiles),'extracting eye videos'): 
         file_name = csv_files[filei] 
@@ -19,6 +19,7 @@ def extract_eye_videos(data_path,Tag):
         df.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood','Eyex','Eyey','Eyelikelihood']
         path,movie_name = os.path.split(file_name)
         movie_name = movie_name.split('DLC')[0]
+        # video_name = (os.path.join(path,movie_name+'.avi'));
         video_name = (os.path.join(path,movie_name+'.avi'));
         eye_video_name = (os.path.join(path,movie_name+"EYE.avi"));
         capture = cv2.VideoCapture(video_name)# reading the videofile
@@ -42,12 +43,15 @@ def extract_eye_videos(data_path,Tag):
          else:
             break
         video.release()
+
 def list_all_folders_in_directory(directory):
     return [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
 
 def get_width_and_height_of_image(path,all_png_folders):
     path_to_folderi = os.path.join(path,all_png_folders[0])
-    path_to_imagei = os.listdir(path_to_folderi)[50] 
+    if len(os.listdir(path_to_folderi))==0:
+        return None,None
+    path_to_imagei = os.listdir(path_to_folderi)[0] 
     return Image.open(os.path.join(path,all_png_folders[0],path_to_imagei)).size
 
 def get_average_image(path,all_png_folders):
@@ -55,20 +59,29 @@ def get_average_image(path,all_png_folders):
     width,height=get_width_and_height_of_image(path,all_png_folders)
     for folderi in range(len(all_png_folders)): 
         path_to_folderi = os.path.join(path,all_png_folders[folderi])
+        if os.listdir(path_to_folderi)==[]:
+            # os.rmdir(path_to_folderi)
+            continue
         path_to_imagei = [i for i in os.listdir(path_to_folderi) if '40.' in i and '.h5' not in i][0]
         image_paths.append(os.path.join(path_to_folderi,path_to_imagei)) 
     n_image=len(image_paths)
+    if height==None:
+        return
     average_image=np.zeros((height,width),np.float)
     for image_pathi in image_paths:
-        image = Image.open(image_pathi);
+        try:
+            image = Image.open(image_pathi);
+        except:
+            ...
         average_image+=np.array(image,dtype=np.float)
     average_image=average_image/n_image
     average_image=np.array(np.round(average_image),dtype=np.uint8)
     return average_image
 
 def make_movie(trial_folder,image_names,action,folderi,*args):
-    avi_name = (trial_folder + '.avi')
-    mp4_name =(trial_folder+'video'+ '.mp4')
+    temp_video_path = os.path.join('/media/zhw272/Samsung_T5/videos','/'.join(trial_folder.split('/')[-4:]))
+    avi_name = (temp_video_path + '.avi')
+    mp4_name =(temp_video_path+'video'+ '.mp4')
     stimulus_valuei= action(image_names, avi_name,folderi,*args)
     image_util.convert_video(avi_name, mp4_name)
     return stimulus_valuei,folderi
@@ -86,9 +99,6 @@ def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
             if not os.path.isdir(trial_folder):
                 continue
             files = os.listdir(trial_folder)
-            if len(files) == 0:
-                shutil.rmtree(trial_folder, ignore_errors=False, onerror=None)
-                continue
             names=image_util.get_image_names(trial_folder)
             image_names.append(names)
             trial_folders.append(trial_folder)
@@ -113,16 +123,27 @@ def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
                 log_error(path,'Error during avi creation for: '+trial_folder,ex)
     return stimulus_value
 
+def get_led_position_from_user_input(average_image):
+    left_led_postion = cv2.selectROI('image', average_image)
+    center_led_position = cv2.selectROI('image', average_image)
+    right_led_position = cv2.selectROI('image', average_image)
+    return left_led_postion,center_led_position,right_led_position
+
+def get_place_holder_led_position():
+    left_led_postion=[1,2,3,4]
+    center_led_position=[1,2,3,4]
+    right_led_position=[1,2,3,4]
+    return left_led_postion,center_led_position,right_led_position
+
 def make_movie_and_stimulus_file(path,parallel=False,ncores = None):
     all_png_folders=list_all_folders_in_directory(path)
     average_image = get_average_image(path,all_png_folders)
     excel_file = os.path.join(path,'Lighttime.xlsx')
-    left_led_postion = cv2.selectROI('image', average_image)
-    center_led_position = cv2.selectROI('image', average_image)
-    right_led_position = cv2.selectROI('image', average_image)
+    # left_led_postion,center_led_position,right_led_position = get_led_position_from_user_input(average_image)
+    left_led_postion,center_led_position,right_led_position = get_place_holder_led_position()
     stimulus_value = make_movie_for_all_trials(path,image_util.make_movies_out_of_images,\
         left_led_postion,center_led_position,right_led_position,parallel=parallel,ncores=ncores)
-    create_stimulus_worksheet(excel_file,stimulus_value)
+    # create_stimulus_worksheet(excel_file,stimulus_value)
 
 def create_stimulus_worksheet(excel_file,stimulus_value):
     workbook = xlsxwriter.Workbook(excel_file)

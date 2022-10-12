@@ -24,6 +24,8 @@ def make_movies_out_of_images(images, video_name,folderi,left_led_postion,center
     xL,yL,wL,hL = left_led_postion
     xC,yC,wC,hC = center_led_position
     xR,yR,wR,hR = right_led_position
+    if len(images)==0:
+        return
     frame = cv2.imread(images[0])
     height, width, _ = frame.shape
     video = cv2.VideoWriter(video_name, 0, 40, (width, height))
