@@ -31,7 +31,7 @@ def processs_top_view_data(data_path):
     deeplabcut.analyze_videos(head_config_file,text_files,shuffle=1, save_as_csv=True )
     deeplabcut.filterpredictions(head_config_file,text_files)
 
-    top_view_spliter.split_left_and_right_from_top_video(data_path)
+    split_left_and_right_from_top_video(data_path)
 
     XfilesL = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ] # find all files with R.avi as file name
     XfilesR = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] # find all files with R.avi as file name
