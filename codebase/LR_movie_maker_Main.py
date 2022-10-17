@@ -127,7 +127,7 @@ def readDLCfiles(Mainfolder,Tag,trial):
     #Angles[Angles<-2]= Angles[Angles<-2]+2*math.pi;
     return df,Angles,Distance,filename
 # measure goodfrmaes
-def findgoodrames (Minliklihood,mindist,maxdist,df,Distance):
+def find_good_frames (Minliklihood,mindist,maxdist,df,Distance):
     Good_Frames = [0 if df.Noselikelihood[i] <Minliklihood or df.Snoutlikelihood[i] <Minliklihood or Distance[i]<mindist or Distance[i]>maxdist else 1 for i in range(len(df.Snoutlikelihood))]
     import pandas as pd
     import numpy as np
