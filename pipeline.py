@@ -17,8 +17,8 @@ def processs_side_view_data(data_path):
     deeplabcut.filterpredictions(side_view_config_file,videos,shuffle=2, save_as_csv=True )
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     eye_videos = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('EYE.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    deeplabcut.analyze_videos(eye_config_file,eye_videos,shuffle=1, save_as_csv=True)
-    deeplabcut.filterpredictions(eye_config_file,eye_videos,shuffle=1, save_as_csv=True)
+    deeplabcut.analyze_videos(eye_config_file,eye_videos,shuffle=2, save_as_csv=True)
+    deeplabcut.filterpredictions(eye_config_file,eye_videos,shuffle=2, save_as_csv=True)
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
