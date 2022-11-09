@@ -4,39 +4,31 @@ import deeplabcut
 import os
 import shutil
 from top_view_spliter import split_left_and_right_from_top_video
+from setting import this_computer
 
 def processs_side_view_data(data_path):
-    side_view_config_file ='/data/SideviewLeft_Feb2022-Arash-2022-02-08/config.yaml';
-    eye_config_file ='/data/EyeAug22-A-2022-08-03/config.yaml';
-    # destination='/net/dk-server/afassihizakeri/SC_Movies/ar32motor/2021_08_02/Side'
-
-    make_movie_and_stimulus_file(data_path,parallel=True,ncores = 16)
+    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
     save_trial_n(data_path)
     videos  = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    deeplabcut.analyze_videos(side_view_config_file,videos,shuffle=1, save_as_csv=True )
+    deeplabcut.analyze_videos(this_computer['side_view_config'],videos,shuffle=2, save_as_csv=True )
+    deeplabcut.filterpredictions(this_computer['side_view_config'],videos,shuffle=2, save_as_csv=True )
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     eye_videos = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('EYE.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    deeplabcut.filterpredictions(eye_config_file,eye_videos,shuffle=2)
+    deeplabcut.analyze_videos(this_computer['eye_config'],eye_videos,shuffle=1, save_as_csv=True )
+    deeplabcut.filterpredictions(this_computer['eye_config'],eye_videos,shuffle=1)
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
-    top_view_config_file ='\\dk-server.dk.ucsd.edu\afassihizakeri\DLC\Topview3435-Arash-2021-07-28\config.yaml';
-    Whisker_config_file ='\\dk-server.dk.ucsd.edu\afassihizakeri\DLC\ar30shiwker-Arash-2021-09-13\config.yaml';
-    # destination='/net/dk-server/afassihizakeri/SC_Movies/ar32motor/2021_08_02/Side'
-
     make_movie_and_stimulus_file(data_path,parallel=True,ncores = 16)
     save_trial_n(data_path)
-
     text_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('video.mp4') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    deeplabcut.analyze_videos(top_view_config_file,text_files,shuffle=1, save_as_csv=True )
-    deeplabcut.filterpredictions(top_view_config_file,text_files)
-
+    deeplabcut.analyze_videos(this_computer['head_config'],text_files,shuffle=1, save_as_csv=True )
+    deeplabcut.filterpredictions(this_computer['head_config'],text_files)
     split_left_and_right_from_top_video(data_path)
-
     XfilesL = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ] # find all files with R.avi as file name
     XfilesR = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] # find all files with R.avi as file name
-    deeplabcut.analyze_videos(Whisker_config_file,XfilesL,shuffle=1, save_as_csv=True)
-    deeplabcut.filterpredictions(Whisker_config_file,XfilesL,shuffle=1)
-    deeplabcut.analyze_videos(Whisker_config_file,XfilesR,shuffle=1, save_as_csv=True)
-    deeplabcut.filterpredictions(Whisker_config_file,XfilesR,shuffle=1)
+    deeplabcut.analyze_videos(this_computer['top_view_config'],XfilesL,shuffle=1, save_as_csv=True)
+    deeplabcut.filterpredictions(this_computer['top_view_config'],XfilesL,shuffle=1)
+    deeplabcut.analyze_videos(this_computer['top_view_config'],XfilesR,shuffle=1, save_as_csv=True)
+    deeplabcut.filterpredictions(this_computer['top_view_config'],XfilesR,shuffle=1)
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
