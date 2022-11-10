@@ -6,7 +6,7 @@ import argparse
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("path", type=str,
+    parser.add_argument("--path", type=str,
                     help="data path to annalyze")
     args = parser.parse_args()
     data_path = os.path.join(data_root,args.path)
