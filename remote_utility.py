@@ -3,6 +3,10 @@ from paramiko import AutoAddPolicy
 from setting import side_view_computer_left,side_view_computer_right,top_view_computer
 import os
 from time import sleep
+from concurrent.futures import ProcessPoolExecutor
+import numpy as np
+from multiprocessing import Pool
+
 def run_command_on_server(server_config,cmd):
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy())
@@ -55,8 +59,51 @@ def start_remote_trials():
         trial = pick_folder(trials,'Pick a trial\n')
         choices.append((animal,trial))
     i=0
-    for name,config in computers.items():
-        print(f'===============processing {name} for animal: {animal} trial: {trial}==================')
-        animal,trial = choices[i]
-        # _,_,err = process_folder_on_server(config,animal,trial)
-        i+=1
+
+    with Pool(processes=4) as pool:
+        futures = []
+        for name,config in computers.items():
+            print(f'===============processing {name} for animal: {animal} trial: {trial}==================')
+            animal,trial = choices[i]
+            future = pool.apply_async(process_folder_on_server, (config, animal, trial))
+            futures.append(future)
+        
+            finished = False
+        while not finished:
+            status = [i.ready() for i in futures]
+            finished = np.all(status)
+            print(f'{sum(status)}/{len(status)} finished')
+            sleep(10)
+
+        for i in range(3):
+            print(f'============result of {names[i]}=============')
+            if futures[i].successful():
+                print('process successfu:')
+            else:
+                print('An exception occured:')
+            print(futures[i].get())
+
+
+def start_process_with_concurrent_future(computers,choices,names):
+    with ProcessPoolExecutor(max_workers=2) as executor:
+        futures = []
+        for name,config in computers.items():
+            print(f'===============processing {name} for animal: {animal} trial: {trial}==================')
+            animal,trial = choices[i]
+            future = executor.submit(process_folder_on_server,config, animal, trial)
+            futures.append(future)
+            i+=1
+    
+    finished = False
+    while not finished:
+        status = [i.done() for i in futures]
+        finished = np.all(status)
+        print(f'{sum(status)}/{len(status)} finished')
+        sleep(1)
+
+    for i in range(3):
+        print(f'============result of {names[i]}=============')
+        try:
+            print(futures[i].result())
+        except:
+            print(futures[i].exception())
