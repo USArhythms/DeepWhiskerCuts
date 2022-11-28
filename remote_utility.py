@@ -17,12 +17,12 @@ def run_command_on_server(server_config,cmd):
     return stdin, stdout, stderr
 
 def get_animal_folders_from_server(server_config):
-    stdin, folders, stderr = run_python_script(server_config,'list_available_animal_folders.py')
+    _, folders, _ = run_python_script(server_config,'list_available_animal_folders.py')
     folders =eval(folders)
     return folders
 
 def get_trial_folders_from_server(server_config,animal_folder):
-    stdin, folders, stderr = run_python_script(server_config,f'list_available_trial_folders.py --folder {animal_folder}')
+    _, folders, _ = run_python_script(server_config,f'list_available_trial_folders.py --folder {animal_folder}')
     folders =eval(folders)  
     return folders
 

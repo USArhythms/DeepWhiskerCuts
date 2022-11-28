@@ -2,11 +2,17 @@ import os
 import numpy as np
 
 class ProgressBase:
-    def __init__(self,dir,check_filtered=True):
+    def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
         self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_dlc_output',\
             'has_filtered_dlc_output','has_eye_video','has_eye_dlc_output','has_filtered_eye_dlc_output']
-        self.top_view_tasks = []
+        self.top_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_topview_overall_dlc_output',\
+            'has_filtered_overall_topview_dlc_output','has_left_video','has_right_video','has_topview_left_dlc_output',\
+                'has_filtered_topview_left_dlc_output','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output']
+        if mode=='top':
+            self.tasks = self.top_view_tasks
+        if mode == 'side':
+            self.tasks = self.side_view_tasks
         self.check_filtered = check_filtered
         
     def get_printable_task_name(self,task_attribute):
@@ -54,8 +60,8 @@ class ProgressBase:
         return 'need ' + ' '.join(function.split('_')[1:])
 
 class ProgressManager(ProgressBase):
-    def __init__(self,dir,check_filtered = True):
-        super().__init__(dir,check_filtered)
+    def __init__(self,dir,mode,check_filtered = True):
+        super().__init__(dir,check_filtered,mode)
         self.animal_folders = self.get_folders_in_path(dir)
         self.check_animal_folders()
         self.animals = [AnimalManager(i) for i in self.animal_folders]
@@ -106,8 +112,8 @@ class ProgressManager(ProgressBase):
                 print(f'{experiment.name}: {experiment.get_next_step()}')
 
 class AnimalManager(ProgressBase):
-    def __init__(self,dir,check_filtered = True):
-        super().__init__(dir,check_filtered)
+    def __init__(self,dir,mode,check_filtered = True):
+        super().__init__(dir,mode,check_filtered)
         self.experiment_folders = self.get_folders_in_path(dir)
         self.check_experiment_folders()
         self.experiments = [ExperimentManager(i) for i in self.experiment_folders]
@@ -134,15 +140,15 @@ class AnimalManager(ProgressBase):
             del self.experiment_folders[i]
 
 class ExperimentManager(ProgressBase):
-    def __init__(self,dir,check_filtered = True):
-        super().__init__(dir,check_filtered)
+    def __init__(self,dir,mode,check_filtered = True):
+        super().__init__(dir,mode,check_filtered)
         self.all_files = os.listdir(dir)
         self.name = os.path.basename(dir)
         subfolders = self.get_folders_in_path(dir)
         self.trial_names = [os.path.basename(i) for i in subfolders]
         self.non_trial_folders = [i for i in self.trial_names if not self.is_trial_folder(i)]
         self.trial_names = [i for i in self.trial_names if self.is_trial_folder(i)]
-        self.trials = [Trial(self.all_files,i) for i in self.trial_names]
+        self.trials = [Trial(self.all_files,i,self.mode) for i in self.trial_names]
         self.type = 'experiment'
         self.list_attribute = 'trials'
         self.finished = np.all([i.finished for i in getattr(self,self.list_attribute)])
@@ -180,20 +186,24 @@ class ExperimentManager(ProgressBase):
                 continue
             if task_id < triali.next_task:
                 task_id = triali.next_task
-        return self.get_next_step_text(self.side_view_tasks[task_id])
+        return self.get_next_step_text(self.tasks[task_id])
 
 class Trial(ProgressBase):
-    def __init__(self,all_files,trial_name,check_filtered=True):
-        super().__init__('',check_filtered)
+    def __init__(self,all_files,trial_name,mode,check_filtered=True):
+        super().__init__('',mode,check_filtered)
         self.name = trial_name
         self.all_files = all_files
         self.check_full_resolution_video()
         self.check_downsampled_video()
         self.check_overall_dlc()
         self.check_eye_video()
+        self.check_left_video()
+        self.check_right_video()
         self.check_eye_dlc()
+        self.check_top_view_left_dlc()
+        self.check_top_view_right_dlc()
         self.type = 'trial'
-        self.task_finished = [getattr(self,taski) for taski in self.side_view_tasks]
+        self.task_finished = [getattr(self,taski) for taski in self.tasks]
         self.finished = np.all(self.task_finished)
         if not self.finished:
             self.next_task = np.where(~np.array(self.task_finished))[0][0]
@@ -208,19 +218,36 @@ class Trial(ProgressBase):
     def check_eye_video(self):
         files = self.get_files_containing_substring('EYE.avi')
         self.has_eye_video = len(files)==1
+
+    def check_left_video(self):
+        files = self.get_files_containing_substring('L.avi')
+        self.has_left_video = len(files)==1
+    
+    def check_right_video(self):
+        files = self.get_files_containing_substring('R.avi')
+        self.has_right_video = len(files)==1
     
     def check_downsampled_video(self):
         files = self.get_files_containing_substring('video.mp4')
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
-        return np.all([np.any([keyword in i for i in files]) for keyword in file_combo])
+        return np.all([np.all([keyword in i for i in files]) for keyword in file_combo])
     
     def check_overall_dlc(self):
         self.check_dlc_output('DLC','has_dlc_output','has_filtered_dlc_output')
     
     def check_eye_dlc(self):
         self.check_dlc_output('EYEDLC','has_eye_dlc_output','has_filtered_eye_dlc_output')
+    
+    def check_top_view_left_dlc(self):
+        self.check_dlc_output('Mirror','has_topview_left_dlc_output','has_filtered_topview_left_dlc_output')
+    
+    def check_top_view_right_dlc(self):
+        self.check_dlc_output('Mask','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output')
+
+    def check_top_view_overall_dlc(self):
+        self.check_dlc_output('DLC_resnet50','has_topview_overall_dlc_output','has_filtered_overall_topview_dlc_output')
 
     def check_dlc_output(self,dlc_string,dlc_field,filtered_dlc_field):
         files = self.get_files_containing_substring(dlc_string)
@@ -234,7 +261,7 @@ class Trial(ProgressBase):
     
     def print_progress(self):
         print(f'progress for trial {self.name}')
-        for taski in self.side_view_tasks:
+        for taski in self.tasks:
             task_name = self.get_printable_task_name(taski)
             if getattr(self,taski):
                 if 'filtered' in task_name and self.check_filtered==False:
@@ -244,7 +271,7 @@ class Trial(ProgressBase):
                 print('does not have '+task_name)
     
     def get_unfinished_tasks(self):
-        return [taski for taski in self.side_view_tasks if not getattr(self,taski)]
+        return [taski for taski in self.tasks if not getattr(self,taski)]
     
     def print_unfinished_tasks(self):
         unfinished = self.get_unfinished_tasks()
