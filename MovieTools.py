@@ -143,6 +143,7 @@ def make_movie_and_stimulus_file(path,parallel=False,ncores = None):
     left_led_postion,center_led_position,right_led_position = get_place_holder_led_position()
     stimulus_value = make_movie_for_all_trials(path,image_util.make_movies_out_of_images,\
         left_led_postion,center_led_position,right_led_position,parallel=parallel,ncores=ncores)
+    save_trial_n(path)
     # create_stimulus_worksheet(excel_file,stimulus_value)
 
 def create_stimulus_worksheet(excel_file,stimulus_value):

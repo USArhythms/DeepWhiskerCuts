@@ -4,8 +4,10 @@ import numpy as np
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
+        self.mode = mode
         self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_dlc_output',\
             'has_filtered_dlc_output','has_eye_video','has_eye_dlc_output','has_filtered_eye_dlc_output']
+
         self.top_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_topview_overall_dlc_output',\
             'has_filtered_overall_topview_dlc_output','has_left_video','has_right_video','has_topview_left_dlc_output',\
                 'has_filtered_topview_left_dlc_output','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output']
@@ -61,10 +63,10 @@ class ProgressBase:
 
 class ProgressManager(ProgressBase):
     def __init__(self,dir,mode,check_filtered = True):
-        super().__init__(dir,check_filtered,mode)
+        super().__init__(dir,mode,check_filtered)
         self.animal_folders = self.get_folders_in_path(dir)
         self.check_animal_folders()
-        self.animals = [AnimalManager(i) for i in self.animal_folders]
+        self.animals = [AnimalManager(i,self.mode) for i in self.animal_folders]
         self.list_attribute = 'animals'
         self.finished = np.all([i.finished for i in getattr(self,self.list_attribute)])
 
@@ -116,7 +118,7 @@ class AnimalManager(ProgressBase):
         super().__init__(dir,mode,check_filtered)
         self.experiment_folders = self.get_folders_in_path(dir)
         self.check_experiment_folders()
-        self.experiments = [ExperimentManager(i) for i in self.experiment_folders]
+        self.experiments = [ExperimentManager(i,self.mode) for i in self.experiment_folders]
         self.name = os.path.basename(dir)
         self.type = 'animal'
         self.list_attribute = 'experiments'
