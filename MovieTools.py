@@ -89,7 +89,6 @@ def make_movie(trial_folder,image_names,action,folderi,*args):
 def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
     all_png_folders=list_all_folders_in_directory(path)
     nfolders = len(all_png_folders)
-    my_file = os.path.join(path,'Lighttime.xlsx')
     trial_folders = []
     image_names = []
     stimulus_value = {}
@@ -98,7 +97,6 @@ def make_movie_for_all_trials(path,action,*args,parallel=False,ncores = None):
             trial_folder = os.path.join(path, trial_folder)
             if not os.path.isdir(trial_folder):
                 continue
-            files = os.listdir(trial_folder)
             names=image_util.get_image_names(trial_folder)
             image_names.append(names)
             trial_folders.append(trial_folder)
@@ -137,8 +135,8 @@ def get_place_holder_led_position():
 
 def make_movie_and_stimulus_file(path,parallel=False,ncores = None):
     all_png_folders=list_all_folders_in_directory(path)
-    average_image = get_average_image(path,all_png_folders)
-    excel_file = os.path.join(path,'Lighttime.xlsx')
+    # average_image = get_average_image(path,all_png_folders)
+    # excel_file = os.path.join(path,'Lighttime.xlsx')
     # left_led_postion,center_led_position,right_led_position = get_led_position_from_user_input(average_image)
     left_led_postion,center_led_position,right_led_position = get_place_holder_led_position()
     stimulus_value = make_movie_for_all_trials(path,image_util.make_movies_out_of_images,\
