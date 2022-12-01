@@ -121,6 +121,7 @@ def split_left_and_right_from_top_video(data_path):
     for trial in range(len(text_files)):
         t =time.time()
         Tag = 'Topview'
+        Tag = 'Muscimol'
         df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,Tag,trial)
         text = os.path.basename(movie_name);
         good_frames =find_good_frames(0.7,5,200,df,interbead_distance)
