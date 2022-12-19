@@ -6,7 +6,6 @@ from pathlib import Path
 from PIL import Image
 import math 
 from subprocess import DEVNULL
-from logger import initiate_logger
 
 def get_image_names(data_path):
     files = os.listdir(data_path)
