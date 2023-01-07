@@ -15,34 +15,37 @@ def extract_eye_videos(data_path,Tag):
     nfiles = len(csv_files)
     for filei in tqdm(range(nfiles),'extracting eye videos'): 
         file_name = csv_files[filei] 
-        df = pd.read_csv(file_name, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1','x.2','y.2','likelihood.2'])
-        df.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood','Eyex','Eyey','Eyelikelihood']
-        path,movie_name = os.path.split(file_name)
-        movie_name = movie_name.split('DLC')[0]
-        # video_name = (os.path.join(path,movie_name+'.avi'));
-        video_name = (os.path.join(path,movie_name+'.avi'));
-        eye_video_name = (os.path.join(path,movie_name+"EYE.avi"));
-        capture = cv2.VideoCapture(video_name)# reading the videofile
-        i=0
-        video = cv2.VideoWriter(eye_video_name, 0, 40, (200,200))
-        while(capture.isOpened()):
-         continue_to_read, frame = capture.read() 
-         if continue_to_read == True:
-            i+=1
-            color_coverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            sizetotal = 200;
-            midpoint= 100;  
-            img = Image.fromarray(color_coverted, 'RGB')
-            Newrotated=np.uint8(image_util.add_margin(img, 100, 100, 100, 100, (0,0,0)))
-            y= int(df.Eyey[i-1]+100-midpoint);
-            x= int(df.Eyex[i-1]+100-midpoint);
-            h = sizetotal
-            w = int(sizetotal)
-            crop_img = Newrotated[y:y+h, x:x+w]
-            video.write(np.array(crop_img))
-         else:
-            break
-        video.release()
+        try:
+            df = pd.read_csv(file_name, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1','x.2','y.2','likelihood.2'])
+            df.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood','Eyex','Eyey','Eyelikelihood']
+            path,movie_name = os.path.split(file_name)
+            movie_name = movie_name.split('DLC')[0]
+            # video_name = (os.path.join(path,movie_name+'.avi'));
+            video_name = (os.path.join(path,movie_name+'.avi'));
+            eye_video_name = (os.path.join(path,movie_name+"EYE.avi"));
+            capture = cv2.VideoCapture(video_name)# reading the videofile
+            i=0
+            video = cv2.VideoWriter(eye_video_name, 0, 40, (200,200))
+            while(capture.isOpened()):
+            continue_to_read, frame = capture.read() 
+            if continue_to_read == True:
+                i+=1
+                color_coverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                sizetotal = 200;
+                midpoint= 100;  
+                img = Image.fromarray(color_coverted, 'RGB')
+                Newrotated=np.uint8(image_util.add_margin(img, 100, 100, 100, 100, (0,0,0)))
+                y= int(df.Eyey[i-1]+100-midpoint);
+                x= int(df.Eyex[i-1]+100-midpoint);
+                h = sizetotal
+                w = int(sizetotal)
+                crop_img = Newrotated[y:y+h, x:x+w]
+                video.write(np.array(crop_img))
+            else:
+                break
+            video.release()
+        except BaseException as ex:
+                log_error(path,'Error during eye video creation for: '+file_name,ex)
 
 def list_all_folders_in_directory(directory):
     return [ name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name)) ]
