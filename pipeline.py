@@ -6,10 +6,10 @@ from setting import this_computer
 import pdb
 
 def processs_side_view_data(data_path):
-    # make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
+    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
     analyze_side_view_video(data_path)
-    # extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
-    # analyze_eye_video(data_path)
+    extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
+    analyze_eye_video(data_path)
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
