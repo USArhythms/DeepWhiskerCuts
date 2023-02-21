@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor,as_completed
 from logger import log_error
+import pdb
 
 def extract_eye_videos(data_path,Tag):
     csv_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.csv') and Tag in f] 
