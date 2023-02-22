@@ -12,12 +12,12 @@ def processs_side_view_data(data_path):
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
-    make_movie_and_stimulus_file(data_path,parallel=True,ncores = 16)
+    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 16)
     analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
     analyze_right_video(data_path)
-    # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
+    #shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def analyze_side_view_video(data_path):
     videos  = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]

@@ -1,6 +1,3 @@
-import os
-from ProgressManager import ProgressManager,ExperimentManager
-root_dir = '/net/dk-server/afassihizakeri/rightsidemovies/'
-dir = '/net/dk-server/afassihizakeri/rightsidemovies/ar38motor/2022_02_08'
-manager = ProgressManager(root_dir)
-manager.animals[0].experiments[0].check_unfinished_tasks()
+from MovieTools import make_movie_and_stimulus_file
+data_path = r'F:\videos\ar37motor\2023_02_17_ 114731'
+make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
