@@ -1,4 +1,3 @@
-from pipeline import processs_side_view_data
-
-data_path = r'D:\Sidevideos\ar42\2022_11_04'
-processs_side_view_data(data_path)
+from MovieTools import make_movie_and_stimulus_file
+data_path = r'D:\Sidevideos\AR44MOTOR\2023_02_17_ 134706'
+make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
