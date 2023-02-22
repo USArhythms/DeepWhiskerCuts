@@ -28,7 +28,7 @@ def extract_eye_videos(data_path,Tag):
             i=0
             video = cv2.VideoWriter(eye_video_name, 0, 40, (200,200))
             while(capture.isOpened()):
-            continue_to_read, frame = capture.read() 
+                continue_to_read, frame = capture.read() 
             if continue_to_read == True:
                 i+=1
                 color_coverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
