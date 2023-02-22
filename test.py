@@ -1,4 +1,3 @@
-from pipeline import processs_top_view_data
-
-data_path = r'\\dk-server.dk.ucsd.edu\afassihizakeri\movies_Rat_SC_project\ar19Muscimolrightside500mg500nl\10_19_19\\'
-processs_top_view_data(data_path)
+from MovieTools import make_movie_and_stimulus_file
+data_path = r'C:\sidevideos\ar44motor\2023_02_17_ 134645'
+make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)

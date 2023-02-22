@@ -250,13 +250,17 @@ class Trial(ProgressBase):
 
     def check_top_view_overall_dlc(self):
         self.check_dlc_output('DLC_resnet50','has_topview_overall_dlc_output','has_filtered_overall_topview_dlc_output')
-
-    def check_dlc_output(self,dlc_string,dlc_field,filtered_dlc_field):
+    
+    def get_filtered_and_unfiltered(self,dlc_string):
         files = self.get_files_containing_substring(dlc_string)
         unfiltered = [i for i in files if 'filtered' not in i]
+        filtered = [i for i in files if 'filtered' in i]
+        return filtered,unfiltered
+
+    def check_dlc_output(self,dlc_string,dlc_field,filtered_dlc_field):
+        filtered,unfiltered = self.get_filtered_and_unfiltered(dlc_string)
         setattr(self,dlc_field,self.check_if_file_combo_exists(['h5','_meta.pickle','csv'],unfiltered))
         if self.check_filtered:
-            filtered = [i for i in files if 'filtered' in i]
             setattr(self,filtered_dlc_field,self.check_if_file_combo_exists(['h5','csv'],filtered))
         else:
             setattr(self,filtered_dlc_field,True)
