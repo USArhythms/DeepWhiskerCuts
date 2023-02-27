@@ -4,7 +4,7 @@ import os
 from top_view_spliter import split_left_and_right_from_top_video
 from setting import this_computer
 import pdb
-
+from tqdm import tqdm
 def processs_side_view_data(data_path):
     make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
     analyze_side_view_video(data_path)
@@ -56,7 +56,7 @@ def analyze_right_video(data_path):
     run_dlc_with_error_handling(XfilesR,deeplabcut_function)
 
 def run_dlc_with_error_handling(videos,deeplabcut_function):
-    for videoi in tqdm(range(videos),'processing videos'): 
+    for videoi in tqdm(range(len(videos)),'processing videos'): 
         video = videos[videoi]
         try:
             deeplabcut_function(video)
