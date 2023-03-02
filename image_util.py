@@ -18,7 +18,18 @@ def get_image_names(data_path):
     files = [os.path.join(data_path,files[i]) for i in sort_id]
     return files
 
-def make_movies_out_of_images(images, video_name,folderi,left_led_postion,center_led_position,right_led_position):
+def make_movies(images, save_path):
+    if len(images)==0:
+        return
+    frame = cv2.imread(images[0])
+    height, width, _ = frame.shape
+    video = cv2.VideoWriter(save_path, 0, 40, (width, height))
+    for idx, _ in enumerate(images):
+        frame = cv2.imread(images[idx])
+        video.write(frame)
+    video.release()
+
+def make_movies_out_of_images(images, video_name,left_led_postion,center_led_position,right_led_position):
     stimulus = []
     xL,yL,wL,hL = left_led_postion
     xC,yC,wC,hC = center_led_position
