@@ -243,7 +243,7 @@ class Trial(ProgressBase):
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
-        return np.all([np.all([keyword in i for i in files]) for keyword in file_combo])
+        return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
         self.check_dlc_output('DLC','has_dlc_output','has_filtered_dlc_output')

@@ -10,7 +10,6 @@ def processs_side_view_data(data_path):
     analyze_side_view_video(data_path)
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     analyze_eye_video(data_path)
-    # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
     make_movie_and_stimulus_file(data_path,parallel=True,ncores = 16)
@@ -18,42 +17,50 @@ def processs_top_view_data(data_path):
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
     analyze_right_video(data_path)
-    # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
-def analyze_side_view_video(data_path):
-    videos  = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
+def analyze_video(config,video,shuffle):
+    deeplabcut.analyze_videos(config,[video],shuffle=shuffle, save_as_csv=True )
+    deeplabcut.filterpredictions(config,[video],shuffle=shuffle, save_as_csv=True )
+
+def analyze_videos(videos,config_type,shuffle=2):
     def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['side_view_config'],[video],shuffle=2, save_as_csv=True )
-        deeplabcut.filterpredictions(this_computer['side_view_config'],[video],shuffle=2, save_as_csv=True )
+        analyze_video(this_computer[config_type],video,shuffle=shuffle)
     run_dlc_with_error_handling(videos,deeplabcut_function)
 
-def analyze_eye_video(data_path):
-    eye_videos = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('EYE.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['eye_config'],[video],shuffle=1, save_as_csv=True )
-        deeplabcut.filterpredictions(this_computer['eye_config'],[video],shuffle=1)
-    run_dlc_with_error_handling(eye_videos,deeplabcut_function)
+def get_side_videos(data_path):
+    return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
 
-def analyze_top_view_video(data_path):
-    text_files = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('video.mp4') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
-    def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['head_config'],[video],shuffle=1, save_as_csv=True )
-        deeplabcut.filterpredictions(this_computer['head_config'],[video])
-    run_dlc_with_error_handling(text_files,deeplabcut_function)
+def analyze_side_view_video(data_path,shuffle=2):
+    videos  = get_side_videos(data_path)
+    analyze_videos(videos,'side_view_config',shuffle=shuffle)
 
-def analyze_left_video(data_path):
-    XfilesL = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ] # find all files with R.avi as file name
-    def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['top_view_config'],[video],shuffle=1, save_as_csv=True)
-        deeplabcut.filterpredictions(this_computer['top_view_config'],[video],shuffle=1)
-    run_dlc_with_error_handling(XfilesL,deeplabcut_function)
+def get_eye_videos(data_path):
+    return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('EYE.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
 
-def analyze_right_video(data_path):
-    XfilesR = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] # find all files with R.avi as file name
-    def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['top_view_config'],[video],shuffle=1, save_as_csv=True)
-        deeplabcut.filterpredictions(this_computer['top_view_config'],[video],shuffle=1)
-    run_dlc_with_error_handling(XfilesR,deeplabcut_function)
+def get_top_videos(data_path):
+    return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('video.mp4') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
+
+def analyze_eye_video(data_path,shuffle=3):
+    eye_videos = get_eye_videos(data_path)
+    analyze_videos(eye_videos,'eye_config',shuffle=shuffle)
+
+def analyze_top_view_video(data_path,shuffle=1):
+    top_videos = get_top_videos(data_path)
+    analyze_videos(top_videos,'head_config',shuffle=shuffle)
+
+def get_left_videos(data_path):
+    return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ]
+
+def analyze_left_video(data_path,shuffle=1):
+    left_videos = get_left_videos(data_path)
+    analyze_videos(left_videos,'top_view_config',shuffle=shuffle)
+
+def get_right_videos(data_path):
+    return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] 
+
+def analyze_right_video(data_path,shuffle=1):
+    right_videos = get_right_videos(data_path)
+    analyze_videos(right_videos,'top_view_config',shuffle=shuffle)
 
 def run_dlc_with_error_handling(videos,deeplabcut_function):
     for videoi in tqdm(range(len(videos)),'processing videos'): 
@@ -61,4 +68,4 @@ def run_dlc_with_error_handling(videos,deeplabcut_function):
         try:
             deeplabcut_function(video)
         except BaseException as ex:
-            log_error(path,'Error during dlc for: '+video,ex)
+            ...
