@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import shutil
+import re 
+
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
@@ -223,11 +225,13 @@ class Trial(ProgressBase):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
     
     def check_full_resolution_video(self):
-        files = self.get_files_containing_substring('.avi')
+        avi = re.compile(str(self.name)+r'.avi')
+        files = [i for i in self.all_files if re.match(avi, i)!=None]
         self.has_full_resolution_video = len(files)==1
     
     def check_eye_video(self):
-        files = self.get_files_containing_substring('EYE.avi')
+        eye_avi = re.compile(str(self.name)+r'EYE.avi')
+        files = [i for i in self.all_files if re.match(eye_avi, i)!=None]
         self.has_eye_video = len(files)==1
 
     def check_left_video(self):
@@ -239,14 +243,25 @@ class Trial(ProgressBase):
         self.has_right_video = len(files)==1
     
     def check_downsampled_video(self):
-        files = self.get_files_containing_substring('video.mp4')
+        mp4 = re.compile(str(self.name)+r'video.mp4')
+        files = [i for i in self.all_files if re.match(mp4, i)!=None]
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
-        self.check_dlc_output('DLC','has_dlc_output','has_filtered_dlc_output')
+        dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+.csv')
+        dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+_filtered.csv')
+        dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+.h5')
+        dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\w+.pickle')
+        dlc_checks = [dlc_csv,dlc_filtered_csv,dlc_h5,dlc_pickle]
+        check_results = []
+        for checki in dlc_checks:
+            files = [i for i in self.all_files if re.match(checki, i)!=None]
+            check_results.append(len(files)==1)
+        self.has_dlc_output = np.all(check_results)
+        self.has_filtered_dlc_output = np.all(check_results)
     
     def check_eye_dlc(self):
         self.check_dlc_output('EYEDLC','has_eye_dlc_output','has_filtered_eye_dlc_output')
