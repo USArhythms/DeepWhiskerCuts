@@ -1,8 +1,9 @@
-from MovieTools import make_movie_and_stimulus_file,extract_eye_videos
+from DeepWhiskerCuts.lib.MovieTools import make_movie_and_stimulus_file,extract_eye_videos
 import deeplabcut
 import os
-from top_view_spliter import split_left_and_right_from_top_video
-from setting.setting import this_computer,side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
+from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_video
+from DeepWhiskerCuts.setting.setting import this_computer
+from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
 from tqdm import tqdm
 
 def processs_side_view_data(data_path):

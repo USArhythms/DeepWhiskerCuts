@@ -2,13 +2,13 @@ import xlsxwriter
 import os 
 import cv2 
 import shutil 
-import image_util
+import DeepWhiskerCuts.lib.image_util as image_util
 from PIL import Image
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor,as_completed
-from logger import log_error
+from DeepWhiskerCuts.utility.logger import log_error
 import pdb
 
 def start_video(file_name):

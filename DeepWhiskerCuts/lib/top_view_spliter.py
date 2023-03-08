@@ -4,7 +4,7 @@ import math
 from PIL import Image ,ImageEnhance
 import numpy as np
 import cv2 
-import image_util
+import DeepWhiskerCuts.lib.image_util as image_util
 import time
 
 def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor): 
