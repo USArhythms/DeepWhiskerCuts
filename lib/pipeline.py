@@ -2,9 +2,9 @@ from MovieTools import make_movie_and_stimulus_file,extract_eye_videos
 import deeplabcut
 import os
 from top_view_spliter import split_left_and_right_from_top_video
-from setting import this_computer
-import pdb
+from setting.setting import this_computer,side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
 from tqdm import tqdm
+
 def processs_side_view_data(data_path):
     make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
     analyze_side_view_video(data_path)
@@ -30,7 +30,7 @@ def analyze_videos(videos,config_type,shuffle=2):
 def get_side_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
 
-def analyze_side_view_video(data_path,shuffle=2):
+def analyze_side_view_video(data_path,shuffle=side_view_shuffle):
     videos  = get_side_videos(data_path)
     analyze_videos(videos,'side_view_config',shuffle=shuffle)
 
@@ -40,25 +40,25 @@ def get_eye_videos(data_path):
 def get_top_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('video.mp4') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
 
-def analyze_eye_video(data_path,shuffle=3):
+def analyze_eye_video(data_path,shuffle=eye_shuffle):
     eye_videos = get_eye_videos(data_path)
     analyze_videos(eye_videos,'eye_config',shuffle=shuffle)
 
-def analyze_top_view_video(data_path,shuffle=1):
+def analyze_top_view_video(data_path,shuffle=top_shuffle):
     top_videos = get_top_videos(data_path)
     analyze_videos(top_videos,'head_config',shuffle=shuffle)
 
 def get_left_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ]
 
-def analyze_left_video(data_path,shuffle=1):
+def analyze_left_video(data_path,shuffle=left_shuffle):
     left_videos = get_left_videos(data_path)
     analyze_videos(left_videos,'top_view_config',shuffle=shuffle)
 
 def get_right_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] 
 
-def analyze_right_video(data_path,shuffle=1):
+def analyze_right_video(data_path,shuffle=right_shuffle):
     right_videos = get_right_videos(data_path)
     analyze_videos(right_videos,'top_view_config',shuffle=shuffle)
 
