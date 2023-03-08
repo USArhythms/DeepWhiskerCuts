@@ -32,8 +32,8 @@ def analyze_side_view_video(data_path):
 def analyze_eye_video(data_path):
     eye_videos = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('EYE.avi') and not f.endswith('L.avi') and not f.endswith('R.avi') and not f.endswith('videopoints.avi') and not f.endswith('videopoints.avi')]
     def deeplabcut_function(video):
-        deeplabcut.analyze_videos(this_computer['eye_config'],[video],shuffle=1, save_as_csv=True )
-        deeplabcut.filterpredictions(this_computer['eye_config'],[video],shuffle=1)
+        deeplabcut.analyze_videos(this_computer['eye_config'],[video],shuffle=3, save_as_csv=True )
+        deeplabcut.filterpredictions(this_computer['eye_config'],[video],shuffle=3)
     run_dlc_with_error_handling(eye_videos,deeplabcut_function)
 
 def analyze_top_view_video(data_path):
