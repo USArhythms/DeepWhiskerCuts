@@ -3,13 +3,17 @@ import numpy as np
 import shutil
 import re 
 from DeepWhiskerCuts.setting.dlc_setting import eye_shuffle,side_view_shuffle
+from DeepWhiskerCuts.lib.pipeline import analyze_videos
+import DeepWhiskerCuts.lib.image_util as image_util
+from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
+
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
         self.mode = mode
-        self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_dlc_output',\
-            'has_filtered_dlc_output','has_eye_video','has_eye_dlc_output','has_filtered_eye_dlc_output']
-
+        self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video',\
+            'has_filtered_dlc_output','has_eye_video','has_filtered_eye_dlc_output']
+        self.side_view_functions = ['make_full_res','make_low_res','analyze_side_video','extract_eye_video','analyze_eye_video']
         self.top_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_topview_overall_dlc_output',\
             'has_filtered_overall_topview_dlc_output','has_left_video','has_right_video','has_topview_left_dlc_output',\
                 'has_filtered_topview_left_dlc_output','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output']
@@ -17,6 +21,7 @@ class ProgressBase:
             self.tasks = self.top_view_tasks
         if mode == 'side':
             self.tasks = self.side_view_tasks
+            self.functions = self.side_view_functions
         self.check_filtered = check_filtered
         
     def get_printable_task_name(self,task_attribute):
@@ -200,6 +205,38 @@ class ExperimentManager(ProgressBase):
         destination_folder = os.path.join(destination,*self.dir.split(os.path.sep)[-2:])
         os.makedirs(destination_folder,exist_ok=True)
         [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
+    
+    def analyze_eye_video(self,triali):
+        eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
+        analyze_videos(eye_videos,'eye_config',shuffle=eye_shuffle)
+    
+    def analyze_side_video(self,triali):
+        eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
+        analyze_videos(eye_videos,'side_view_config',shuffle=eye_shuffle)
+    
+    def extract_eye_video(self,triali):
+        file_name = [os.path.join(self.dir,i) for i in self.all_files if re.match(triali.dlc_csv, i.replace(' ', '_'))!=None]
+        extract_single_eye_video(file_name[0])
+
+    def make_full_res(self,triali):
+        image_names = image_util.get_image_names(os.path.join(self.dir,triali.name))
+        avi_name = os.path.join(self.dir,triali.name + '.avi')
+        image_util.make_movies(image_names, avi_name)
+    
+    def make_low_res(self,triali):
+        avi_name = os.path.join(self.dir,triali.name + '.avi')
+        mp4_name = os.path.join(self.dir,triali.name+'video'+ '.mp4')
+        image_util.convert_video(avi_name, mp4_name)
+    
+    def fix_trial(self,triali):
+        print(f'fixing trial {triali.name}')
+        ntasks = len(self.functions)
+        for taski in range(ntasks):
+            task_name = self.tasks[taski]
+            function_name = self.functions[taski]
+            function = getattr(self,function_name)
+            if ~getattr(triali,task_name):
+                function(triali)
 
 class Trial(ProgressBase):
     def __init__(self,all_files,trial_name,mode,check_filtered=True):
@@ -220,6 +257,7 @@ class Trial(ProgressBase):
         self.finished = np.all(self.task_finished)
         if not self.finished:
             self.next_task = np.where(~np.array(self.task_finished))[0][0]
+        self.dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
     
     def get_files_containing_substring(self,substring):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
@@ -307,7 +345,7 @@ class Trial(ProgressBase):
                 print('has '+task_name)
             else:
                 print('does not have '+task_name)
-    
+
     def get_unfinished_tasks(self):
         return [taski for taski in self.tasks if not getattr(self,taski)]
     
@@ -315,6 +353,7 @@ class Trial(ProgressBase):
         unfinished = self.get_unfinished_tasks()
         print(f'trial {self.name} does not have:')
         [print(i) for i in unfinished]
+    
 
 
         

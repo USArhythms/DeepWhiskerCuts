@@ -7,9 +7,5 @@ dir = r'D:\Sidevideos\ar37motor\2023_02_22'
 manager = ExperimentManager(dir,'side')
 for triali in manager.trials:
     if not triali.finished:
-        # pdb.set_trace()
-        triali.print_progress()
-        eye_videos = [os.path.join(manager.dir,triali.name+'EYE.avi')]
-        analyze_videos(eye_videos,'eye_config',shuffle=eye_shuffle)
-        print('undone') 
+        manager.fix_trial(triali)
 print('done')
