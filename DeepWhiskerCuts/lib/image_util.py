@@ -28,26 +28,6 @@ def make_movies(images, save_path):
         frame = cv2.imread(images[idx])
         video.write(frame)
     video.release()
-
-def make_movies_out_of_images(images, video_name,left_led_postion,center_led_position,right_led_position):
-    stimulus = []
-    xL,yL,wL,hL = left_led_postion
-    xC,yC,wC,hC = center_led_position
-    xR,yR,wR,hR = right_led_position
-    if len(images)==0:
-        return
-    frame = cv2.imread(images[0])
-    height, width, _ = frame.shape
-    video = cv2.VideoWriter(video_name, 0, 40, (width, height))
-    for idx, _ in enumerate(images):
-        frame = cv2.imread(images[idx])
-        video.write(frame)
-        cropped_l = frame[yL:yL + hL, xL:xL + wL]  # both opencv and numpy are "row-major", so y goes first
-        cropped_r = frame[yR:yR + hR, xR:xR + wR]  # both opencv and numpy are "row-major", so y goes first
-        cropped_c = frame[yC:yC + hC, xC:xC + wC]  # both opencv and numpy are "row-major", so y goes first
-        stimulus.append([np.mean(cropped_l),np.mean(cropped_c),np.mean(cropped_r)])
-    video.release()
-    return np.array(stimulus)
     
 def convert_video(video_input, video_output):
     cmds = ['ffmpeg', '-i', video_input, video_output,'-hide_banner','-loglevel','error']
