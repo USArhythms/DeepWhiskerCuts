@@ -206,11 +206,18 @@ class ExperimentManager(ProgressBase):
         os.makedirs(destination_folder,exist_ok=True)
         [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
     
+    def delete_old_files(self,triali,tag):
+        old_files = [i for i in  self.all_files if triali.name+tag in i and i.split(tag)[0]==triali.name]
+        for filei in old_files:
+            os.remove(os.path.join(self.dir,filei))
+
     def analyze_eye_video(self,triali):
-        eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
+        self.delete_old_files(triali,'EYEDLC')
+        eye_videos = [os.path.join(self.dir,triali.name+'EYE.avi')]
         analyze_videos(eye_videos,'eye_config',shuffle=eye_shuffle)
     
     def analyze_side_video(self,triali):
+        self.delete_old_files(triali,'DLC')
         eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
         analyze_videos(eye_videos,'side_view_config',shuffle=eye_shuffle)
     

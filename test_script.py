@@ -7,5 +7,6 @@ dir = r'D:\Sidevideos\ar37motor\2023_02_22'
 manager = ExperimentManager(dir,'side')
 for triali in manager.trials:
     if not triali.finished:
+        # pdb.set_trace()
         manager.fix_trial(triali)
 print('done')
