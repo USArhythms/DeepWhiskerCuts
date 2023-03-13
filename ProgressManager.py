@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import shutil
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
@@ -189,6 +189,15 @@ class ExperimentManager(ProgressBase):
             if task_id < triali.next_task:
                 task_id = triali.next_task
         return self.get_next_step_text(self.tasks[task_id])
+    
+    def get_path_to_full_resolution_videos(self):
+        return [os.path.join(self.dir,i.get_files_containing_substring('.avi')[0]) for i in self.trials]
+
+    def copy_full_resolution_videos(self,destination):
+        videos = [i.get_files_containing_substring('.avi')[0] for i in self.trials]
+        destination_folder = os.path.join(destination,*self.dir.split(os.path.sep)[-2:])
+        os.makedirs(destination_folder,exist_ok=True)
+        [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
 
 class Trial(ProgressBase):
     def __init__(self,all_files,trial_name,mode,check_filtered=True):

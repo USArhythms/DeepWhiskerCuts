@@ -1,3 +1,6 @@
-from MovieTools import make_movie_and_stimulus_file
-data_path = r'F:\videos\ar37motor\2023_02_17_ 114731'
-make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
+from pipeline import processs_top_view_data
+
+data_path = r'F:\videos\ar37motor\2023_02_22_ 163923'
+processs_top_view_data(data_path)
+
+#  I am finished you are good to go
