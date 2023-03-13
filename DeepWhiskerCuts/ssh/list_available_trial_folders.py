@@ -1,6 +1,6 @@
 import os
 import argparse
-from setting import this_computer
+from DeepWhiskerCuts.setting.setting import this_computer
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()

@@ -1,6 +1,3 @@
-import os
-from pipeline import processs_side_view_data
-root_dir = '/net/dk-server/afassihizakeri/rightsidemovies/'
-dir = r'D:\Sidevideos\ar42\2022_11_04'
-processs_side_view_data(dir)
-
+from DeepWhiskerCuts.lib.MovieTools import make_movie_for_all_trials
+dir = r'C:\Users\DKLAb\Desktop\side view test'
+make_movie_for_all_trials(dir,parallel=False,ncores = 4)

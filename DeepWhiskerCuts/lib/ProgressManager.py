@@ -1,13 +1,21 @@
 import os
 import numpy as np
 import shutil
+import re 
+from DeepWhiskerCuts.setting.dlc_setting import eye_shuffle,side_view_shuffle
+from DeepWhiskerCuts.lib.pipeline import analyze_videos
+import DeepWhiskerCuts.lib.image_util as image_util
+from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
+from DeepWhiskerCuts.setting.setting import this_computer
+import pdb
+
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
         self.dir = dir
         self.mode = mode
-        self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_dlc_output',\
-            'has_filtered_dlc_output','has_eye_video','has_eye_dlc_output','has_filtered_eye_dlc_output']
-
+        self.side_view_tasks = ['has_full_resolution_video','has_downsampled_video',\
+            'has_filtered_dlc_output','has_eye_video','has_filtered_eye_dlc_output']
+        self.side_view_functions = ['make_full_res','make_low_res','analyze_side_video','extract_eye_video','analyze_eye_video']
         self.top_view_tasks = ['has_full_resolution_video','has_downsampled_video','has_topview_overall_dlc_output',\
             'has_filtered_overall_topview_dlc_output','has_left_video','has_right_video','has_topview_left_dlc_output',\
                 'has_filtered_topview_left_dlc_output','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output']
@@ -15,6 +23,7 @@ class ProgressBase:
             self.tasks = self.top_view_tasks
         if mode == 'side':
             self.tasks = self.side_view_tasks
+            self.functions = self.side_view_functions
         self.check_filtered = check_filtered
         
     def get_printable_task_name(self,task_attribute):
@@ -198,12 +207,63 @@ class ExperimentManager(ProgressBase):
         destination_folder = os.path.join(destination,*self.dir.split(os.path.sep)[-2:])
         os.makedirs(destination_folder,exist_ok=True)
         [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
+    
+    def copy_files_for_pupil_qc(self,destination):
+        # pdb.set_trace()
+        self.copy_files(destination,['eye_avi','eye_dlc_filtered_csv'])
+        
+    def copy_files(self,destination,patterns):
+        destination_folder = os.path.join(destination,this_computer['tag'],*self.dir.split(os.path.sep)[-2:])
+        os.makedirs(destination_folder,exist_ok=True)
+        for triali in self.trials:
+            files_to_copy = [triali.get_file_with_pattern(getattr(triali,i)) for i in patterns]
+            [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in files_to_copy]    
+
+    def delete_old_files(self,triali,tag):
+        old_files = [i for i in  self.all_files if triali.name+tag in i and i.split(tag)[0]==triali.name]
+        for filei in old_files:
+            os.remove(os.path.join(self.dir,filei))
+
+    def analyze_eye_video(self,triali):
+        self.delete_old_files(triali,'EYEDLC')
+        eye_videos = [os.path.join(self.dir,triali.name+'EYE.avi')]
+        analyze_videos(eye_videos,'eye_config',shuffle=eye_shuffle)
+    
+    def analyze_side_video(self,triali):
+        self.delete_old_files(triali,'DLC')
+        eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
+        analyze_videos(eye_videos,'side_view_config',shuffle=eye_shuffle)
+    
+    def extract_eye_video(self,triali):
+        file_name = [os.path.join(self.dir,i) for i in self.all_files if re.match(triali.dlc_csv, i.replace(' ', '_'))!=None]
+        extract_single_eye_video(file_name[0])
+
+    def make_full_res(self,triali):
+        image_names = image_util.get_image_names(os.path.join(self.dir,triali.name))
+        avi_name = os.path.join(self.dir,triali.name + '.avi')
+        image_util.make_movies(image_names, avi_name)
+    
+    def make_low_res(self,triali):
+        avi_name = os.path.join(self.dir,triali.name + '.avi')
+        mp4_name = os.path.join(self.dir,triali.name+'video'+ '.mp4')
+        image_util.convert_video(avi_name, mp4_name)
+    
+    def fix_trial(self,triali):
+        print(f'fixing trial {triali.name}')
+        ntasks = len(self.functions)
+        for taski in range(ntasks):
+            task_name = self.tasks[taski]
+            function_name = self.functions[taski]
+            function = getattr(self,function_name)
+            if ~getattr(triali,task_name):
+                function(triali)
 
 class Trial(ProgressBase):
     def __init__(self,all_files,trial_name,mode,check_filtered=True):
         super().__init__('',mode,check_filtered)
         self.name = trial_name
         self.all_files = all_files
+        self.set_file_patterns()
         self.check_full_resolution_video()
         self.check_downsampled_video()
         self.check_overall_dlc()
@@ -218,17 +278,44 @@ class Trial(ProgressBase):
         self.finished = np.all(self.task_finished)
         if not self.finished:
             self.next_task = np.where(~np.array(self.task_finished))[0][0]
+        self.dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
+    
+    def set_file_patterns(self):
+        self.avi = re.compile(str(self.name)+r'.avi')
+        self.mp4 = re.compile(str(self.name)+r'video.mp4')
+        self.eye_avi = re.compile(str(self.name)+r'EYE.avi')
+        self.eye_dlc_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.csv')
+        self.eye_dlc_filtered_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+_filtered.csv')
+        self.eye_dlc_h5 = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.h5')
+        self.eye_dlc_pickle = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\w+.pickle')
+        self.dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
+        self.dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+_filtered.csv')
+        self.dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.h5')
+        self.dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\w+.pickle')
     
     def get_files_containing_substring(self,substring):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
     
-    def check_full_resolution_video(self):
-        files = self.get_files_containing_substring('.avi')
-        self.has_full_resolution_video = len(files)==1
+    def check_has_file_with_pattern(self,pattern):
+        files = [i for i in self.all_files if re.match(pattern, i.replace(' ', '_'))!=None]
+        return len(files)==1
+    
+    def get_file_with_pattern(self,pattern):
+        files = [i for i in self.all_files if re.match(pattern, i.replace(' ', '_'))!=None]
+        assert len(files)==1
+        return files[0]
+    
+    def check_list_of_patterns(self,checks):
+        check_passed = []
+        for checki in checks:
+            check_passed.append(self.check_has_file_with_pattern(checki))
+        return np.all(check_passed)
+    
+    def check_full_resolution_video(self):        
+        self.has_full_resolution_video = self.check_has_file_with_pattern(self.avi)
     
     def check_eye_video(self):
-        files = self.get_files_containing_substring('EYE.avi')
-        self.has_eye_video = len(files)==1
+        self.has_eye_video = self.check_has_file_with_pattern(self.eye_avi)
 
     def check_left_video(self):
         files = self.get_files_containing_substring('L.avi')
@@ -239,17 +326,24 @@ class Trial(ProgressBase):
         self.has_right_video = len(files)==1
     
     def check_downsampled_video(self):
-        files = self.get_files_containing_substring('video.mp4')
+        files = [i for i in self.all_files if re.match(self.mp4, i)!=None]
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
-        return np.all([np.all([keyword in i for i in files]) for keyword in file_combo])
+        return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
-        self.check_dlc_output('DLC','has_dlc_output','has_filtered_dlc_output')
+
+        dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
+        filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
+        self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
+        self.has_filtered_dlc_output = self.check_list_of_patterns(filtered_dlc_checks)
     
     def check_eye_dlc(self):
-        self.check_dlc_output('EYEDLC','has_eye_dlc_output','has_filtered_eye_dlc_output')
+        eye_dlc_checks = [self.eye_dlc_csv,self.eye_dlc_h5,self.eye_dlc_pickle]
+        eye_filtered_dlc_checks = [self.eye_dlc_csv,self.eye_dlc_filtered_csv,self.eye_dlc_h5,self.eye_dlc_pickle]
+        self.has_eye_dlc_output = self.check_list_of_patterns(eye_dlc_checks)
+        self.has_filtered_eye_dlc_output = self.check_list_of_patterns(eye_filtered_dlc_checks)
     
     def check_top_view_left_dlc(self):
         self.check_dlc_output('Mirror','has_topview_left_dlc_output','has_filtered_topview_left_dlc_output')
@@ -280,7 +374,7 @@ class Trial(ProgressBase):
                 print('has '+task_name)
             else:
                 print('does not have '+task_name)
-    
+
     def get_unfinished_tasks(self):
         return [taski for taski in self.tasks if not getattr(self,taski)]
     
@@ -288,6 +382,7 @@ class Trial(ProgressBase):
         unfinished = self.get_unfinished_tasks()
         print(f'trial {self.name} does not have:')
         [print(i) for i in unfinished]
+    
 
 
         
