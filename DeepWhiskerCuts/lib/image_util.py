@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 from PIL import Image
 import math 
+from DeepWhiskerCuts.setting.setting import this_computer
 from subprocess import DEVNULL
 import pdb
 
@@ -31,8 +32,8 @@ def make_movies(images, save_path):
     video.release()
     
 def convert_video(video_input, video_output):
-    cmds = ['ffmpeg', '-i', video_input, video_output,'-hide_banner','-loglevel','error']
-    subprocess.Popen(cmds, shell=False, stdout=DEVNULL)  
+    cmds = [this_computer['ffmpeg_path'], '-i', video_input, video_output,'-hide_banner','-loglevel','error']
+    subprocess.Popen(cmds)  
 
 def Mask(frame2,sigma):
     [x1,x2,_]=frame2.shape

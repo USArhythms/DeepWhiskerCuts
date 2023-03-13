@@ -89,7 +89,6 @@ def get_average_image(path,all_png_folders):
     return average_image
 
 def make_movie(trial_folder,image_names):
-    temp_video_path = os.path.join('/media/zhw272/Samsung_T5/videos','/'.join(trial_folder.split('/')[-4:]))
     avi_name = (trial_folder + '.avi')
     mp4_name =(trial_folder+'video'+ '.mp4')
     image_util.make_movies(image_names, avi_name)
