@@ -1,4 +1,4 @@
-from DeepWhiskerCuts.lib.MovieTools import make_movie_and_stimulus_file,extract_eye_videos
+from DeepWhiskerCuts.lib.MovieTools import make_movie_for_all_trials,extract_eye_videos
 import deeplabcut
 import os
 from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_video
@@ -7,13 +7,13 @@ from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,le
 from tqdm import tqdm
 
 def processs_side_view_data(data_path):
-    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
+    make_movie_for_all_trials(data_path,parallel=False,ncores=4)
     analyze_side_view_video(data_path)
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     analyze_eye_video(data_path)
 
 def processs_top_view_data(data_path):
-    make_movie_and_stimulus_file(data_path,parallel=True,ncores = 16)
+    make_movie_for_all_trials(data_path,parallel=False,ncores=4)
     analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
