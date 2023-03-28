@@ -6,6 +6,8 @@ from DeepWhiskerCuts.setting.dlc_setting import eye_shuffle,side_view_shuffle
 from DeepWhiskerCuts.lib.pipeline import analyze_videos
 import DeepWhiskerCuts.lib.image_util as image_util
 from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
+from DeepWhiskerCuts.setting.setting import this_computer
+import pdb
 
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
@@ -206,6 +208,17 @@ class ExperimentManager(ProgressBase):
         os.makedirs(destination_folder,exist_ok=True)
         [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
     
+    def copy_files_for_pupil_qc(self,destination):
+        # pdb.set_trace()
+        self.copy_files(destination,['eye_avi','eye_dlc_filtered_csv'])
+        
+    def copy_files(self,destination,patterns):
+        destination_folder = os.path.join(destination,this_computer['tag'],*self.dir.split(os.path.sep)[-2:])
+        os.makedirs(destination_folder,exist_ok=True)
+        for triali in self.trials:
+            files_to_copy = [triali.get_file_with_pattern(getattr(triali,i)) for i in patterns]
+            [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in files_to_copy]    
+
     def delete_old_files(self,triali,tag):
         old_files = [i for i in  self.all_files if triali.name+tag in i and i.split(tag)[0]==triali.name]
         for filei in old_files:
@@ -250,6 +263,7 @@ class Trial(ProgressBase):
         super().__init__('',mode,check_filtered)
         self.name = trial_name
         self.all_files = all_files
+        self.set_file_patterns()
         self.check_full_resolution_video()
         self.check_downsampled_video()
         self.check_overall_dlc()
@@ -266,12 +280,30 @@ class Trial(ProgressBase):
             self.next_task = np.where(~np.array(self.task_finished))[0][0]
         self.dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
     
+    def set_file_patterns(self):
+        self.avi = re.compile(str(self.name)+r'.avi')
+        self.mp4 = re.compile(str(self.name)+r'video.mp4')
+        self.eye_avi = re.compile(str(self.name)+r'EYE.avi')
+        self.eye_dlc_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.csv')
+        self.eye_dlc_filtered_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+_filtered.csv')
+        self.eye_dlc_h5 = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.h5')
+        self.eye_dlc_pickle = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\w+.pickle')
+        self.dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
+        self.dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+_filtered.csv')
+        self.dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.h5')
+        self.dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\w+.pickle')
+    
     def get_files_containing_substring(self,substring):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
     
     def check_has_file_with_pattern(self,pattern):
         files = [i for i in self.all_files if re.match(pattern, i.replace(' ', '_'))!=None]
         return len(files)==1
+    
+    def get_file_with_pattern(self,pattern):
+        files = [i for i in self.all_files if re.match(pattern, i.replace(' ', '_'))!=None]
+        assert len(files)==1
+        return files[0]
     
     def check_list_of_patterns(self,checks):
         check_passed = []
@@ -280,12 +312,10 @@ class Trial(ProgressBase):
         return np.all(check_passed)
     
     def check_full_resolution_video(self):        
-        avi = re.compile(str(self.name)+r'.avi')
-        self.has_full_resolution_video = self.check_has_file_with_pattern(avi)
+        self.has_full_resolution_video = self.check_has_file_with_pattern(self.avi)
     
     def check_eye_video(self):
-        eye_avi = re.compile(str(self.name)+r'EYE.avi')
-        self.has_eye_video = self.check_has_file_with_pattern(eye_avi)
+        self.has_eye_video = self.check_has_file_with_pattern(self.eye_avi)
 
     def check_left_video(self):
         files = self.get_files_containing_substring('L.avi')
@@ -296,30 +326,22 @@ class Trial(ProgressBase):
         self.has_right_video = len(files)==1
     
     def check_downsampled_video(self):
-        mp4 = re.compile(str(self.name)+r'video.mp4')
-        files = [i for i in self.all_files if re.match(mp4, i)!=None]
+        files = [i for i in self.all_files if re.match(self.mp4, i)!=None]
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
-        dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
-        dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+_filtered.csv')
-        dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.h5')
-        dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\w+.pickle')
-        dlc_checks = [dlc_csv,dlc_h5,dlc_pickle]
-        filtered_dlc_checks = [dlc_csv,dlc_filtered_csv,dlc_h5,dlc_pickle]
+
+        dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
+        filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
         self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
         self.has_filtered_dlc_output = self.check_list_of_patterns(filtered_dlc_checks)
     
     def check_eye_dlc(self):
-        eye_dlc_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.csv')
-        eye_dlc_filtered_csv = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+_filtered.csv')
-        eye_dlc_h5 = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\d+.h5')
-        eye_dlc_pickle = re.compile(str(self.name)+rf'EYEDLC_\w+shuffle{eye_shuffle}_\w+.pickle')
-        eye_dlc_checks = [eye_dlc_csv,eye_dlc_h5,eye_dlc_pickle]
-        eye_filtered_dlc_checks = [eye_dlc_csv,eye_dlc_filtered_csv,eye_dlc_h5,eye_dlc_pickle]
+        eye_dlc_checks = [self.eye_dlc_csv,self.eye_dlc_h5,self.eye_dlc_pickle]
+        eye_filtered_dlc_checks = [self.eye_dlc_csv,self.eye_dlc_filtered_csv,self.eye_dlc_h5,self.eye_dlc_pickle]
         self.has_eye_dlc_output = self.check_list_of_patterns(eye_dlc_checks)
         self.has_filtered_eye_dlc_output = self.check_list_of_patterns(eye_filtered_dlc_checks)
     
