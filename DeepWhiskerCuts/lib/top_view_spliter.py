@@ -6,6 +6,8 @@ import numpy as np
 import cv2 
 import DeepWhiskerCuts.lib.image_util as image_util
 import time
+import pdb
+from DeepWhiskerCuts.setting.dlc_setting import top_view_config_name
 
 def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor): 
     text = os.path.basename(movie_name);
@@ -49,19 +51,22 @@ def process_and_split_video(input_name,output_name,good_frames,head_angle,df,fac
 
 
 def readDLCfiles(data_path,Tag,trial):   
-    Xfiles = [os.path.join(data_path,f) for f in os.listdir(data_path) if f.endswith('filtered.csv') and Tag in f] 
-    filename = Xfiles[trial]
-    df = pd.read_csv(filename, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1'])
-    df.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood']
-    smoothingwin = 5;
-    x1 = smooth_data_convolve_my_average(df.Nosex, smoothingwin);
-    y1 = smooth_data_convolve_my_average(df.Nosey, smoothingwin);
-    x2 = smooth_data_convolve_my_average(df.Snoutx1, smoothingwin);
-    y2 = smooth_data_convolve_my_average(df.Snouty1, smoothingwin);
-    head_angles = [math.atan2(-(y1[i]-y2[i]),-(x1[i]-x2[i]))  for i in range(len(df.Snoutlikelihood))] # define the angle of the head
-    inter_bead_distance = [math.sqrt((x2[i] - x1[i])**2 + (y2[i] - y1[i])**2)  for i in range(len(df.Snoutlikelihood))]# define the distance between beads  
-    head_angles = pd.Series(head_angles)
-    return df,head_angles,inter_bead_distance,filename
+    Xfiles = [os.path.join(data_path,i) for i in os.listdir(data_path) if 'filtered.csv' in i and 'Topview' in i and int(i.split('DLC')[0])==trial]
+    try:
+        filename = Xfiles[0]
+        df = pd.read_csv(filename, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1'])
+        df.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood']
+        smoothingwin = 5;
+        x1 = smooth_data_convolve_my_average(df.Nosex, smoothingwin);
+        y1 = smooth_data_convolve_my_average(df.Nosey, smoothingwin);
+        x2 = smooth_data_convolve_my_average(df.Snoutx1, smoothingwin);
+        y2 = smooth_data_convolve_my_average(df.Snouty1, smoothingwin);
+        head_angles = [math.atan2(-(y1[i]-y2[i]),-(x1[i]-x2[i]))  for i in range(len(df.Snoutlikelihood))] # define the angle of the head
+        inter_bead_distance = [math.sqrt((x2[i] - x1[i])**2 + (y2[i] - y1[i])**2)  for i in range(len(df.Snoutlikelihood))]# define the distance between beads  
+        head_angles = pd.Series(head_angles)
+        return df,head_angles,inter_bead_distance,filename
+    except:
+        pdb.set_trace()
 
 def find_good_frames(Minliklihood,mindist,maxdist,df,Distance):
     Good_Frames = [0 if df.Noselikelihood[i] <Minliklihood or df.Snoutlikelihood[i] <Minliklihood or Distance[i]<mindist or Distance[i]>maxdist else 1 for i in range(len(df.Snoutlikelihood))]
@@ -106,10 +111,10 @@ def add_margin(pil_img, top, right, bottom, left, color):
     return result
 
 def writeFrameData(data_path,text,Good_Frames,df,Angle):
+    pdb.set_trace()
     frame_data_path = os.path.join(data_path,text.split('DLC')[0]+'FrameData.xlsx');
     good_frame_id = np.where(np.array(Good_Frames) == 1)[0]
-    results=pd.DataFrame({"goodframes":good_frame_id, "Angle":Angle[Good_Frames==1], "Nosex":df.Nosex[Good_Frames==1]\
-    ,"Nosey":df.Nosey[Good_Frames==1],"Snoutx":df.Snoutx1[Good_Frames==1],"Snouty":df.Snouty1[Good_Frames==1]})                     
+    results=pd.DataFrame({"goodframes":good_frame_id, "Angle":Angle[Good_Frames==1], "Nosex":df.Nosex[Good_Frames==1],"Nosey":df.Nosey[Good_Frames==1],"Snoutx":df.Snoutx1[Good_Frames==1],"Snouty":df.Snouty1[Good_Frames==1]})                     
     writer = pd.ExcelWriter(frame_data_path, engine='xlsxwriter')
     results.to_excel(writer, 'Sheet1')
     writer.save()    
@@ -120,8 +125,7 @@ def split_left_and_right_from_top_video(data_path):
     print(len(text_files))
     for trial in range(len(text_files)):
         t =time.time()
-        Tag = 'Topview'
-        df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,Tag,trial)
+        df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,top_view_config_name,trial)
         text = os.path.basename(movie_name);
         good_frames =find_good_frames(0.7,5,200,df,interbead_distance)
         writeFrameData(data_path,text,good_frames,df,head_angle)

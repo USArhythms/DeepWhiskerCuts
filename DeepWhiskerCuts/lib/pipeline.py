@@ -5,6 +5,7 @@ from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_v
 from DeepWhiskerCuts.setting.setting import this_computer
 from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
 from tqdm import tqdm
+import pdb
 
 def processs_side_view_data(data_path):
     make_movie_for_all_trials(data_path,parallel=False,ncores=4)
