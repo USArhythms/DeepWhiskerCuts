@@ -8,5 +8,6 @@ eye_shuffle = 3
 head_config_file = os.path.join('ar30shiwker-Arash-2021-09-13','config.yaml')
 left_shuffle = 1
 right_shuffle = 1
-top_view_config_file = os.path.join('Topview3435-Arash-2021-07-28','config.yaml')
+top_view_config_name = 'Topview3435-Arash-2021-07-28'
+top_view_config_file = os.path.join(top_view_config_name,'config.yaml')
 top_shuffle = 1
