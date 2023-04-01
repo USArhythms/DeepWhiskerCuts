@@ -1,19 +1,20 @@
-from MovieTools import make_movie_and_stimulus_file,extract_eye_videos
+from DeepWhiskerCuts.lib.MovieTools import make_movie_for_all_trials,extract_eye_videos
 import deeplabcut
 import os
-from top_view_spliter import split_left_and_right_from_top_video
-from setting import this_computer
+from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_video
+from DeepWhiskerCuts.setting.setting import this_computer
+from tqdm import tqdm
 import pdb
 
 def processs_side_view_data(data_path):
-    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 4)
+    make_movie_for_all_trials(data_path,parallel=False,ncores = 4)
     analyze_side_view_video(data_path)
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     analyze_eye_video(data_path)
     # shutil.copytree( data_path,destination, ignore=shutil.ignore_patterns('*.avi'),copy_function = shutil.copy)
 
 def processs_top_view_data(data_path):
-    make_movie_and_stimulus_file(data_path,parallel=False,ncores = 16)
+    make_movie_for_all_trials(data_path,parallel=False,ncores = 16)
     analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
@@ -56,9 +57,10 @@ def analyze_right_video(data_path):
     run_dlc_with_error_handling(XfilesR,deeplabcut_function)
 
 def run_dlc_with_error_handling(videos,deeplabcut_function):
-    for videoi in tqdm(range(videos),'processing videos'): 
+    for videoi in tqdm(range(len(videos)),'processing videos'): 
         video = videos[videoi]
         try:
             deeplabcut_function(video)
         except BaseException as ex:
-            log_error(path,'Error during dlc for: '+video,ex)
+            ...
+            # log_error(os.path.join(video.split(os.sep)[:-2]),'Error during dlc for: '+video,ex)
