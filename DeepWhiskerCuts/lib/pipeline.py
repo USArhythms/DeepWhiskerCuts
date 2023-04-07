@@ -13,8 +13,8 @@ def processs_side_view_data(data_path):
     analyze_eye_video(data_path)
 
 def processs_top_view_data(data_path):
-    make_movie_for_all_trials(data_path,parallel=False,ncores=4)
-    analyze_top_view_video(data_path)
+    # make_movie_for_all_trials(data_path,parallel=False,ncores=4)
+    # analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
     analyze_right_video(data_path)
