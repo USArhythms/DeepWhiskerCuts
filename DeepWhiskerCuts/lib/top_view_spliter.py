@@ -11,42 +11,39 @@ from DeepWhiskerCuts.setting.dlc_setting import top_view_config_name
 
 def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor): 
     text = os.path.basename(movie_name);
-    video_name = (os.path.join(os.path.dirname(movie_name),text.split('DLC')[0]+extension));
+    video_name = (os.path.join(os.path.dirname(movie_name),text.split('DLC')[0]+'.avi'));
     video_nameR = (os.path.join(os.path.dirname(movie_name),"Mirror"+text.split('DLC')[0]+"R.avi"));
     video_nameL = (os.path.join(os.path.dirname(movie_name),"Mask"+text.split('DLC')[0]+"L.avi"));
-    video_name=video_name.split('video.mp4')[0]+'.avi';
     print(video_name)
     process_and_split_video(video_name,video_nameR,good_frames,head_angle,df,factor,315,630,faceshift=60,flip=True)
     process_and_split_video(video_name,video_nameL,good_frames,head_angle,df,factor,0,315,faceshift=80)
 
 def process_and_split_video(input_name,output_name,good_frames,head_angle,df,factor,start_index,end_index,faceshift=60,flip=False):
     cap = cv2.VideoCapture(input_name)
-    i=0
     video = cv2.VideoWriter(output_name, 0, 40, (315,700))
-    while(cap.isOpened()):
-     ret, frame = cap.read() 
-     if ret == True:
-        i+=1
-        if good_frames[i-1]==1:
-            color_coverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image = Image.fromarray(color_coverted)
-            rotated = image.rotate((math.degrees(head_angle[i-1])-90+180), expand=True)
-            rotated = np.array(rotated) 
-            rotated = rotated[:, :, ::-1].copy() 
-            cropped=  crop_rotated(rotated,frame,head_angle,i-1,df)
-            cropped_image = cropped[0:700, start_index+faceshift:end_index+faceshift]
-            if flip:
-                frame2 = cv2.flip(cropped_image, 1)
-            else:
-                frame2 = cropped_image
-            frame2 = image_util.mask(frame2,60)
-            frame2 = Image.fromarray(frame2)
-            frame2 = frame2.convert("RGB")
-            enhancer = ImageEnhance.Contrast(frame2)
-            enhanced = enhancer.enhance(factor)
-            video.write(np.array(enhanced))
-     else:
-        break
+    if cap.isOpened():
+        ret, frame = cap.read() 
+        if ret == True:
+            for i in np.where(good_frames)[0]:
+                color_coverted = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image = Image.fromarray(color_coverted)
+                rotated = image.rotate((math.degrees(head_angle[i])-90+180), expand=True)
+                rotated = np.array(rotated) 
+                rotated = rotated[:, :, ::-1].copy() 
+                cropped=  crop_rotated(rotated,frame,head_angle,i,df)
+                cropped_image = cropped[0:700, start_index+faceshift:end_index+faceshift]
+                if flip:
+                    frame2 = cv2.flip(cropped_image, 1)
+                else:
+                    frame2 = cropped_image
+                frame2 = image_util.Mask(frame2,60)
+                frame2 = Image.fromarray(frame2)
+                frame2 = frame2.convert("RGB")
+                enhancer = ImageEnhance.Contrast(frame2)
+                enhanced = enhancer.enhance(factor)
+                video.write(np.array(enhanced))
+    else:
+        print("Error opening the video file")
     video.release()
 
 
@@ -114,9 +111,7 @@ def writeFrameData(data_path,text,Good_Frames,df,Angle):
     frame_data_path = os.path.join(data_path,text.split('DLC')[0]+'FrameData.xlsx');
     good_frame_id = np.where(np.array(Good_Frames) == 1)[0]
     results=pd.DataFrame({"goodframes":good_frame_id, "Angle":Angle[Good_Frames==1], "Nosex":df.Nosex[Good_Frames==1],"Nosey":df.Nosey[Good_Frames==1],"Snoutx":df.Snoutx1[Good_Frames==1],"Snouty":df.Snouty1[Good_Frames==1]})                     
-    writer = pd.ExcelWriter(frame_data_path, engine='xlsxwriter')
-    results.to_excel(writer, 'Sheet1')
-    writer.save()    
+    results.to_csv(frame_data_path)
 
 def split_left_and_right_from_top_video(data_path):
     contrastfactor=1.05
