@@ -1,10 +1,10 @@
 from DeepWhiskerCuts.lib.ProgressManager import ExperimentManager
 from DeepWhiskerCuts.lib.pipeline import processs_side_view_data
-dir = r'C:\Sidevideos\ar37\2023_03_23_ 182249'
-processs_side_view_data(dir)
-manager = ExperimentManager(dir,'side')
+from folder_to_process import side_folder
+
+processs_side_view_data(side_folder)
+manager = ExperimentManager(side_folder,'side')
 for triali in manager.trials:
     if not triali.finished:
-        # pdb.set_trace()
         manager.fix_trial(triali)
 print('done')

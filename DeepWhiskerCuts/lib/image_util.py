@@ -36,18 +36,18 @@ def convert_video(video_input, video_output):
     subprocess.Popen(cmds)  
 
 def Mask(frame2,sigma):
-    [x1,x2,_]=frame2.shape
-    center = [x1 ,x1/2]
-    x = np.arange(0, x1, 1, float)
+    # pdb.set_trace()
+    [xdim,ydim,_]=frame2.shape
+    center = [xdim ,xdim/2]
+    x = np.arange(0, xdim, 1, float)
     y = x[:,np.newaxis]
-    if center is None:
-        x0 = y0 = x1 // 2
-    else:
-        x0 = center[0]
-        y0 = center[1]
-    g=np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / sigma**2) 
-    g=np.delete(g, list(range(x1-x2)), 1)
-    y = np.expand_dims(g, axis=3)
+    x0 = center[0]
+    y0 = center[1]
+    grid=np.exp(-4*np.log(2) * ((x-x0)**2 + (y-y0)**2) / sigma**2) 
+    grid=np.delete(grid, list(range(xdim-ydim)), 1)
+    # pdb.set_trace()
+    # y = np.expand_dims(grid, axis=3)
+    y = grid[:,:,np.newaxis]
     y=np.repeat(y,3,axis=2)
     a = np.array(frame2, dtype=float)
     a = a*(1-y)
