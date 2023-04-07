@@ -39,7 +39,11 @@ imgaug==0.4.0
 importlib-metadata==4.11.4
 importlib-resources==5.9.0
 ipykernel==6.16.0
+<<<<<<< HEAD
+ipython ~=8.5.0
+=======
 ipython==8.5.0
+>>>>>>> cce02b3ba7f2bf20515dd667380d1fdf54fa7a4f
 ipython-genutils==0.2.0
 ipywidgets==8.0.2
 jedi==0.18.1
