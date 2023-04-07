@@ -19,7 +19,6 @@ def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor):
     process_and_split_video(video_name,video_nameL,good_frames,head_angle,df,factor,0,315,faceshift=80)
 
 def process_and_split_video(input_name,output_name,good_frames,head_angle,df,factor,start_index,end_index,faceshift=60,flip=False):
-    # pdb.set_trace()
     cap = cv2.VideoCapture(input_name)
     video = cv2.VideoWriter(output_name, 0, 40, (315,700))
     if cap.isOpened():
@@ -45,7 +44,6 @@ def process_and_split_video(input_name,output_name,good_frames,head_angle,df,fac
                 video.write(np.array(enhanced))
     else:
         print("Error opening the video file")
-    # pdb.set_trace()
     video.release()
 
 
