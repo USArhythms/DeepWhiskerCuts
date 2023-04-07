@@ -8,7 +8,7 @@ import DeepWhiskerCuts.lib.image_util as image_util
 import time
 import pdb
 from DeepWhiskerCuts.setting.dlc_setting import top_view_config_name
-
+import re
 def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor): 
     text = os.path.basename(movie_name);
     video_name = (os.path.join(os.path.dirname(movie_name),text.split('DLC')[0]+'.avi'));
@@ -48,7 +48,7 @@ def process_and_split_video(input_name,output_name,good_frames,head_angle,df,fac
 
 
 def readDLCfiles(data_path,Tag,trial):   
-    Xfiles = [os.path.join(data_path,i) for i in os.listdir(data_path) if 'filtered.csv' in i and 'Topview' in i and int(i.split('DLC')[0])==trial]
+    Xfiles = [os.path.join(data_path,i) for i in os.listdir(data_path) if re.match(r'\d+DLC', i) and 'filtered.csv' in i  and int( re.findall(r'\d+DLC', i)[0][:-3])==trial]
     try:
         filename = Xfiles[0]
         df = pd.read_csv(filename, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1'])
@@ -122,7 +122,7 @@ def split_left_and_right_from_top_video(data_path):
         df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,top_view_config_name,trial)
         text = os.path.basename(movie_name);
         good_frames =find_good_frames(0.7,5,200,df,interbead_distance)
-        writeFrameData(data_path,text,good_frames,df,head_angle)
+        # writeFrameData(data_path,text,good_frames,df,head_angle)
         savemovies_LR(movie_name,head_angle,df,good_frames,".mp4",contrastfactor) 
         elapsed = time.time() - t 
         video_name = (os.path.join(os.path.dirname(movie_name),text.split('DLC')[0]+".avi"));
