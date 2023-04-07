@@ -8,8 +8,8 @@ from tqdm import tqdm
 import pdb
 
 def processs_side_view_data(data_path):
-    make_movie_for_all_trials(data_path,parallel=False,ncores=4)
-    analyze_side_view_video(data_path)
+    # make_movie_for_all_trials(data_path,parallel=False,ncores=4)
+    # analyze_side_view_video(data_path)
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     analyze_eye_video(data_path)
 
