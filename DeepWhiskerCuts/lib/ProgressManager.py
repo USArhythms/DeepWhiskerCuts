@@ -7,7 +7,6 @@ from DeepWhiskerCuts.lib.pipeline import analyze_videos
 import DeepWhiskerCuts.lib.image_util as image_util
 from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
 from DeepWhiskerCuts.setting.setting import this_computer
-import pdb
 
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
