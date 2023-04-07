@@ -111,7 +111,6 @@ def add_margin(pil_img, top, right, bottom, left, color):
     return result
 
 def writeFrameData(data_path,text,Good_Frames,df,Angle):
-    pdb.set_trace()
     frame_data_path = os.path.join(data_path,text.split('DLC')[0]+'FrameData.xlsx');
     good_frame_id = np.where(np.array(Good_Frames) == 1)[0]
     results=pd.DataFrame({"goodframes":good_frame_id, "Angle":Angle[Good_Frames==1], "Nosex":df.Nosex[Good_Frames==1],"Nosey":df.Nosey[Good_Frames==1],"Snoutx":df.Snoutx1[Good_Frames==1],"Snouty":df.Snouty1[Good_Frames==1]})                     
