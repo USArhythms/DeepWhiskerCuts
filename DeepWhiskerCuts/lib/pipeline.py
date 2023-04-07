@@ -47,8 +47,11 @@ def analyze_eye_video(data_path,shuffle=eye_shuffle):
     analyze_videos(eye_videos,'eye_config',shuffle=shuffle)
 
 def analyze_top_view_video(data_path,shuffle=top_shuffle):
-    top_videos = get_top_videos(data_path)
-    analyze_videos(top_videos,'head_config',shuffle=shuffle)
+    try:
+        top_videos = get_top_videos(data_path)
+        analyze_videos(top_videos,'head_config',shuffle=shuffle)
+    except:
+        pdb.set_trace()
 
 def get_left_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ]
