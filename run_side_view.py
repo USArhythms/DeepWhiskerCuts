@@ -5,6 +5,5 @@ processs_side_view_data(dir)
 manager = ExperimentManager(dir,'side')
 for triali in manager.trials:
     if not triali.finished:
-        # pdb.set_trace()
         manager.fix_trial(triali)
 print('done')
