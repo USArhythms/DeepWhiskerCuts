@@ -6,8 +6,6 @@ from pathlib import Path
 from PIL import Image
 import math 
 from DeepWhiskerCuts.setting.setting import this_computer
-from subprocess import DEVNULL
-import pdb
 
 def get_image_names(data_path):
     files = os.listdir(data_path)

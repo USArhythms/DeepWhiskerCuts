@@ -1,6 +1,6 @@
 from paramiko.client import SSHClient
 from paramiko import AutoAddPolicy
-from DeepWhiskerCuts.setting.setting import side_view_computer_left,side_view_computer_right,top_view_computer
+from DeepWhiskerCuts.setting.computer_setting import side_view_computer_left,side_view_computer_right,top_view_computer
 import os
 from time import sleep
 from concurrent.futures import ProcessPoolExecutor

@@ -1,7 +1,6 @@
 import xlsxwriter  
 import os 
 import cv2 
-import shutil 
 from DeepWhiskerCuts.setting.dlc_setting import side_view_config_name,side_view_shuffle
 import DeepWhiskerCuts.lib.image_util as image_util
 from PIL import Image
@@ -9,8 +8,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor,as_completed
-from DeepWhiskerCuts.utility.logger import log_error
-import pdb
+from DeepWhiskerCuts.lib.logger import log_error
 import re 
 
 def start_video(file_name):

@@ -1,6 +1,6 @@
 
-from pipeline import processs_side_view_data
-from DeepWhiskerCuts.setting.setting import this_computer
+from lib.pipeline import processs_side_view_data
+from setting.setting import this_computer
 import os
 import argparse
 
