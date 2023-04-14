@@ -10,7 +10,7 @@ from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor,as_completed
 from DeepWhiskerCuts.lib.logger import log_error
 import re 
-
+from time import sleep
 def start_video(file_name):
     path,movie_name = os.path.split(file_name)
     movie_name = movie_name.split('DLC')[0]
@@ -21,6 +21,7 @@ def start_video(file_name):
     return capture,video
 
 def extract_single_eye_video(file_name):
+    sleep(5)
     eye_position = pd.read_csv(file_name, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1','x.2','y.2','likelihood.2'])
     eye_position.columns=  ['Nosex','Nosey','Noselikelihood','Snoutx1','Snouty1','Snoutlikelihood','Eyex','Eyey','Eyelikelihood']
     capture,video = start_video(file_name)

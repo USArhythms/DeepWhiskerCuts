@@ -5,9 +5,10 @@ from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_v
 from DeepWhiskerCuts.setting.setting import this_computer
 from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
 from tqdm import tqdm
+import pdb
 
 def processs_side_view_data(data_path):
-    make_movie_for_all_trials(data_path,parallel=False,ncores=4)
+    # make_movie_for_all_trials(data_path,parallel=False,ncores=4)
     analyze_side_view_video(data_path)
     extract_eye_videos(data_path,'DLC_resnet50_SideviewLeft_Feb2022Feb8shuffle1_271000')
     analyze_eye_video(data_path)
@@ -72,4 +73,4 @@ def run_dlc_with_error_handling(videos,deeplabcut_function):
         try:
             deeplabcut_function(video)
         except BaseException as ex:
-            ...
+            pdb.set_trace()
