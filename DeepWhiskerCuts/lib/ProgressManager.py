@@ -2,14 +2,11 @@ import os
 import numpy as np
 import shutil
 import re 
-<<<<<<< HEAD:ProgressManager.py
-=======
 from DeepWhiskerCuts.setting.dlc_setting import eye_shuffle,side_view_shuffle
 from DeepWhiskerCuts.lib.pipeline import analyze_videos
 import DeepWhiskerCuts.lib.image_util as image_util
 from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
 from DeepWhiskerCuts.setting.setting import this_computer
->>>>>>> 8b1d4250d5ace478f27cfcd2a185d0cde4a0dda6:DeepWhiskerCuts/lib/ProgressManager.py
 
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
@@ -298,17 +295,6 @@ class Trial(ProgressBase):
     def get_files_containing_substring(self,substring):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
     
-<<<<<<< HEAD:ProgressManager.py
-    def check_full_resolution_video(self):
-        avi = re.compile(str(self.name)+r'.avi')
-        files = [i for i in self.all_files if re.match(avi, i)!=None]
-        self.has_full_resolution_video = len(files)==1
-    
-    def check_eye_video(self):
-        eye_avi = re.compile(str(self.name)+r'EYE.avi')
-        files = [i for i in self.all_files if re.match(eye_avi, i)!=None]
-        self.has_eye_video = len(files)==1
-=======
     def check_has_file_with_pattern(self,pattern):
         files = [i for i in self.all_files if re.match(pattern, i.replace(' ', '_'))!=None]
         return len(files)==1
@@ -329,7 +315,6 @@ class Trial(ProgressBase):
     
     def check_eye_video(self):
         self.has_eye_video = self.check_has_file_with_pattern(self.eye_avi)
->>>>>>> 8b1d4250d5ace478f27cfcd2a185d0cde4a0dda6:DeepWhiskerCuts/lib/ProgressManager.py
 
     def check_left_video(self):
         files = self.get_files_containing_substring('L.avi')
@@ -340,37 +325,17 @@ class Trial(ProgressBase):
         self.has_right_video = len(files)==1
     
     def check_downsampled_video(self):
-<<<<<<< HEAD:ProgressManager.py
-        mp4 = re.compile(str(self.name)+r'video.mp4')
-        files = [i for i in self.all_files if re.match(mp4, i)!=None]
-=======
         files = [i for i in self.all_files if re.match(self.mp4, i)!=None]
->>>>>>> 8b1d4250d5ace478f27cfcd2a185d0cde4a0dda6:DeepWhiskerCuts/lib/ProgressManager.py
         self.has_downsampled_video = len(files)==1
     
     def check_if_file_combo_exists(self,file_combo,files):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
-<<<<<<< HEAD:ProgressManager.py
-        dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+.csv')
-        dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+_filtered.csv')
-        dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\d+.h5')
-        dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{shuffle}_\w+.pickle')
-        dlc_checks = [dlc_csv,dlc_filtered_csv,dlc_h5,dlc_pickle]
-        check_results = []
-        for checki in dlc_checks:
-            files = [i for i in self.all_files if re.match(checki, i)!=None]
-            check_results.append(len(files)==1)
-        self.has_dlc_output = np.all(check_results)
-        self.has_filtered_dlc_output = np.all(check_results)
-=======
-
         dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
         filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
         self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
         self.has_filtered_dlc_output = self.check_list_of_patterns(filtered_dlc_checks)
->>>>>>> 8b1d4250d5ace478f27cfcd2a185d0cde4a0dda6:DeepWhiskerCuts/lib/ProgressManager.py
     
     def check_eye_dlc(self):
         eye_dlc_checks = [self.eye_dlc_csv,self.eye_dlc_h5,self.eye_dlc_pickle]
