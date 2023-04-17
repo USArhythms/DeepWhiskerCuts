@@ -7,6 +7,7 @@ from DeepWhiskerCuts.lib.pipeline import analyze_videos
 import DeepWhiskerCuts.lib.image_util as image_util
 from DeepWhiskerCuts.lib.MovieTools import extract_single_eye_video
 from DeepWhiskerCuts.setting.setting import this_computer
+import pdb
 
 class ProgressBase:
     def __init__(self,dir,mode,check_filtered=True):
@@ -231,7 +232,7 @@ class ExperimentManager(ProgressBase):
     def analyze_side_video(self,triali):
         self.delete_old_files(triali,'DLC')
         eye_videos = [os.path.join(self.dir,triali.name+'.avi')]
-        analyze_videos(eye_videos,'side_view_config',shuffle=eye_shuffle)
+        analyze_videos(eye_videos,'side_view_config',shuffle=side_view_shuffle)
     
     def extract_eye_video(self,triali):
         file_name = [os.path.join(self.dir,i) for i in self.all_files if re.match(triali.dlc_csv, i.replace(' ', '_'))!=None]
@@ -254,8 +255,14 @@ class ExperimentManager(ProgressBase):
             task_name = self.tasks[taski]
             function_name = self.functions[taski]
             function = getattr(self,function_name)
-            if ~getattr(triali,task_name):
+            if np.logical_not(getattr(triali,task_name)):
                 function(triali)
+
+    def copy_eye_videos(self,destination):
+        videos = [i.get_files_containing_substring('EYE.avi')[0] for i in self.trials]
+        destination_folder = os.path.join(destination,*self.dir.split(os.path.sep)[-2:])
+        os.makedirs(destination_folder,exist_ok=True)
+        [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
 
 class Trial(ProgressBase):
     def __init__(self,all_files,trial_name,mode,check_filtered=True):
@@ -332,6 +339,10 @@ class Trial(ProgressBase):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
+<<<<<<< HEAD
+=======
+
+>>>>>>> b89e03735c7989d109a11d86e398c4be4a317ddb
         dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
         filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
         self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
@@ -351,13 +362,17 @@ class Trial(ProgressBase):
 
     def check_top_view_overall_dlc(self):
         self.check_dlc_output('DLC_resnet50','has_topview_overall_dlc_output','has_filtered_overall_topview_dlc_output')
-
-    def check_dlc_output(self,dlc_string,dlc_field,filtered_dlc_field):
+    
+    def get_filtered_and_unfiltered(self,dlc_string):
         files = self.get_files_containing_substring(dlc_string)
         unfiltered = [i for i in files if 'filtered' not in i]
+        filtered = [i for i in files if 'filtered' in i]
+        return filtered,unfiltered
+
+    def check_dlc_output(self,dlc_string,dlc_field,filtered_dlc_field):
+        filtered,unfiltered = self.get_filtered_and_unfiltered(dlc_string)
         setattr(self,dlc_field,self.check_if_file_combo_exists(['h5','_meta.pickle','csv'],unfiltered))
         if self.check_filtered:
-            filtered = [i for i in files if 'filtered' in i]
             setattr(self,filtered_dlc_field,self.check_if_file_combo_exists(['h5','csv'],filtered))
         else:
             setattr(self,filtered_dlc_field,True)

@@ -6,6 +6,7 @@ from time import sleep
 from concurrent.futures import ProcessPoolExecutor
 import numpy as np
 from multiprocessing import Pool
+import pdb
 
 def run_command_on_server(server_config,cmd):
     client = SSHClient()
@@ -18,11 +19,13 @@ def run_command_on_server(server_config,cmd):
 
 def get_animal_folders_from_server(server_config):
     _, folders, _ = run_python_script(server_config,'list_available_animal_folders.py')
+    pdb.set_trace()
     folders =eval(folders)
     return folders
 
 def get_trial_folders_from_server(server_config,animal_folder):
     _, folders, _ = run_python_script(server_config,f'list_available_trial_folders.py --folder {animal_folder}')
+    pdb.set_trace()
     folders =eval(folders)  
     return folders
 
