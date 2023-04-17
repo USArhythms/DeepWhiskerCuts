@@ -30,7 +30,7 @@ def get_trial_folders_from_server(server_config,animal_folder):
     return folders
 
 def run_python_script(server_config,python_script_command):
-    return run_command_on_server(server_config,f"{server_config['dlc_environment']} && python {os.path.join(server_config['code_path'],python_script_command)}")
+    return run_command_on_server(server_config,f"set PATH=%PATH%;{server_config['conda_path']}&& conda activate {server_config['dlc_environment']} && python {os.path.join(server_config['code_path'],python_script_command)}")
 
 def process_folder_on_server(server_config,folder,trial):
     stdin, folders, stderr = run_python_script(server_config,f'process_experiment.py --folder "{folder}" --trial "{trial}"')
