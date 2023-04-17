@@ -1,4 +1,10 @@
-from setting import this_computer
 import os
+import argparse
+import pdb
 if __name__=='__main__':
-    print(os.listdir(this_computer['data_path']))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('folder')
+    args = parser.parse_args()
+    folders = os.listdir(args.folder)
+    output = '['+','.join(folders)+']'
+    print(output)
