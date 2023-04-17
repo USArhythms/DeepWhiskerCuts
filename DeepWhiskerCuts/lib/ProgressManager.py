@@ -258,6 +258,12 @@ class ExperimentManager(ProgressBase):
             if np.logical_not(getattr(triali,task_name)):
                 function(triali)
 
+    def copy_eye_videos(self,destination):
+        videos = [i.get_files_containing_substring('EYE.avi')[0] for i in self.trials]
+        destination_folder = os.path.join(destination,*self.dir.split(os.path.sep)[-2:])
+        os.makedirs(destination_folder,exist_ok=True)
+        [shutil.copyfile(os.path.join(self.dir,i),os.path.join(destination_folder,i)) for i in videos]
+
 class Trial(ProgressBase):
     def __init__(self,all_files,trial_name,mode,check_filtered=True):
         super().__init__('',mode,check_filtered)
