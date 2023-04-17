@@ -43,7 +43,7 @@ side_view_computer_mid['eye_config'] = os.path.join(windows_dlc_folder,eye_confi
 side_view_computer_mid['top_view_config'] = os.path.join(windows_dlc_folder,top_view_config_file)
 side_view_computer_mid['head_config'] = os.path.join(windows_dlc_folder,head_config_file)
 side_view_computer_mid['ffmpeg_path'] = r'C:\ffmpeg\bin\ffmpeg.exe'
-side_view_computer_mid['dlc_environment'] = ''
+side_view_computer_mid['dlc_environment'] = 'conda actiavte deeplabcut'
 
 pons['side_view_config'] = os.path.join(linux_dlc_folder,side_view_config_file)
 pons['eye_config'] = os.path.join(linux_dlc_folder,eye_config_file)

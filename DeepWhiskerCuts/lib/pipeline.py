@@ -14,7 +14,7 @@ def processs_side_view_data(data_path):
 
 def processs_top_view_data(data_path):
     # make_movie_for_all_trials(data_path,parallel=False,ncores=4)
-    # analyze_top_view_video(data_path)
+    analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
     analyze_right_video(data_path)
@@ -48,23 +48,24 @@ def analyze_eye_video(data_path,shuffle=eye_shuffle):
 def analyze_top_view_video(data_path,shuffle=top_shuffle):
     try:
         top_videos = get_top_videos(data_path)
-        analyze_videos(top_videos,'head_config',shuffle=shuffle)
+        analyze_videos(top_videos,'top_view_config',shuffle=shuffle)
     except:
-        pdb.set_trace()
+        ...
+        # pdb.set_trace()
 
 def get_left_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ]
 
 def analyze_left_video(data_path,shuffle=left_shuffle):
     left_videos = get_left_videos(data_path)
-    analyze_videos(left_videos,'top_view_config',shuffle=shuffle)
+    analyze_videos(left_videos,'head_config',shuffle=shuffle)
 
 def get_right_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] 
 
 def analyze_right_video(data_path,shuffle=right_shuffle):
     right_videos = get_right_videos(data_path)
-    analyze_videos(right_videos,'top_view_config',shuffle=shuffle)
+    analyze_videos(right_videos,'head_config',shuffle=shuffle)
 
 def run_dlc_with_error_handling(videos,deeplabcut_function):
     for videoi in tqdm(range(len(videos)),'processing videos'): 
