@@ -15,17 +15,17 @@ def run_command_on_server(server_config,cmd):
     stdin, stdout, stderr = client.exec_command(cmd)
     stdout, stderr = stdout.read().decode(), stderr.read().decode()
     client.close()
+    pdb.set_trace()
     return stdin, stdout, stderr
 
 def get_animal_folders_from_server(server_config):
     _, folders, _ = run_python_script(server_config,'list_available_animal_folders.py')
-    pdb.set_trace()
     folders =eval(folders)
     return folders
 
 def get_trial_folders_from_server(server_config,animal_folder):
     _, folders, _ = run_python_script(server_config,f'list_available_trial_folders.py --folder {animal_folder}')
-    pdb.set_trace()
+    # pdb.set_trace()
     folders =eval(folders)  
     return folders
 
