@@ -1,6 +1,6 @@
 from paramiko.client import SSHClient
 from paramiko import AutoAddPolicy
-from DeepWhiskerCuts.setting.computer_setting import side_view_computer_left,side_view_computer_right,top_view_computer
+from DeepWhiskerCuts.setting.setting import computers
 import os
 from time import sleep
 from concurrent.futures import ProcessPoolExecutor
@@ -46,10 +46,7 @@ def pick_folder(folders,prompt):
     print(f'==================picked: {folder}====================')
     return folder
 
-def start_remote_trials():
-    computers = [side_view_computer_left,side_view_computer_right,top_view_computer]
-    names = ['side_view_computer_left','side_view_computer_right','top_view_computer']
-    computers = dict(zip(names,computers))
+def start_remote_trials(computers=computers):
     choices = []
     for name,config in computers.items():
         print(f'=================={name}====================')
