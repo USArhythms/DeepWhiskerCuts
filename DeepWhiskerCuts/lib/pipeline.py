@@ -13,7 +13,11 @@ def processs_side_view_data(data_path):
     analyze_eye_video(data_path)
 
 def processs_top_view_data(data_path):
+<<<<<<< HEAD
+    # make_movie_for_all_trials(data_path,parallel=False,ncores=4)
+=======
     make_movie_for_all_trials(data_path,parallel=False,ncores=4)
+>>>>>>> 9bd8250b763579b7e9820bcd8d554696d829120e
     analyze_top_view_video(data_path)
     split_left_and_right_from_top_video(data_path)
     analyze_left_video(data_path)
@@ -50,7 +54,8 @@ def analyze_top_view_video(data_path,shuffle=top_shuffle):
         top_videos = get_top_videos(data_path)
         analyze_videos(top_videos,'top_view_config',shuffle=shuffle)
     except:
-        pdb.set_trace()
+        ...
+        # pdb.set_trace()
 
 def get_left_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mask')  ]

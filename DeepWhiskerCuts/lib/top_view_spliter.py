@@ -63,7 +63,8 @@ def readDLCfiles(data_path,Tag,trial):
         head_angles = pd.Series(head_angles)
         return df,head_angles,inter_bead_distance,filename
     except:
-        pdb.set_trace()
+        ...
+        # pdb.set_trace()
 
 def find_good_frames(Minliklihood,mindist,maxdist,df,Distance):
     Good_Frames = [0 if df.Noselikelihood[i] <Minliklihood or df.Snoutlikelihood[i] <Minliklihood or Distance[i]<mindist or Distance[i]>maxdist else 1 for i in range(len(df.Snoutlikelihood))]
