@@ -339,7 +339,10 @@ class Trial(ProgressBase):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
+<<<<<<< HEAD
+=======
 
+>>>>>>> b89e03735c7989d109a11d86e398c4be4a317ddb
         dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
         filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
         self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
