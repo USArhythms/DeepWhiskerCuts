@@ -119,13 +119,7 @@ def split_left_and_right_from_top_video(data_path):
     print(len(text_files))
     for trial in range(len(text_files)):
         t =time.time()
-<<<<<<< HEAD:top_view_spliter.py
-        Tag = 'Topview'
-        Tag = 'Muscimol'
-        df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,Tag,trial)
-=======
         df, head_angle,interbead_distance,movie_name=readDLCfiles(data_path,top_view_config_name,trial)
->>>>>>> bed3077b294a911f4b67c42409200c16ef681ed5:DeepWhiskerCuts/lib/top_view_spliter.py
         text = os.path.basename(movie_name);
         good_frames =find_good_frames(0.7,5,200,df,interbead_distance)
         # writeFrameData(data_path,text,good_frames,df,head_angle)

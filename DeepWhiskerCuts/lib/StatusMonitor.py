@@ -54,7 +54,9 @@ def get_current_pc_status():
         trials = common_trials[animali]
         if len(trials)>0:
             for triali in trials:
-                trial_folder = os.path.join(this_computer['data_folder'],animali,triali)
+                animal_folder = os.path.join(this_computer['data_path'],animali)
+                folders = os.listdir(animal_folder)
+                trial_folder = os.path.join(animal_folder,[i for i in folders if triali in i][0])
                 manager = ExperimentManager(trial_folder,this_computer['mode'])
                 status[animali][triali] = manager
     return status

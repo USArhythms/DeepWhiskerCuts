@@ -155,7 +155,7 @@ class ExperimentManager(ProgressBase):
         super().__init__(dir,mode,check_filtered)
         self.all_files = os.listdir(dir)
         self.name = os.path.basename(dir)
-        self.animal = os.path.basename(os.abspath(os.path.join(dir,'..')))
+        self.animal = os.path.basename(os.path.abspath(os.path.join(dir,'..')))
         subfolders = self.get_folders_in_path(dir)
         self.trial_names = [os.path.basename(i) for i in subfolders]
         self.non_trial_folders = [i for i in self.trial_names if not self.is_trial_folder(i)]
