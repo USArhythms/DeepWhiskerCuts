@@ -8,6 +8,11 @@ import numpy as np
 from multiprocessing import Pool
 import pdb
 
+def run_python_script_on_all_servers(python_script,computers=computers):
+    for computeri in computers:
+        config = computers[computeri]
+        run_python_script(config,python_script)
+
 def run_command_on_server(server_config,cmd):
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy())
