@@ -155,19 +155,35 @@ class ExperimentManager(ProgressBase):
         super().__init__(dir,mode,check_filtered)
         self.all_files = os.listdir(dir)
         self.name = os.path.basename(dir)
+        self.animal = os.path.basename(os.abspath(os.path.join(dir,'..')))
         subfolders = self.get_folders_in_path(dir)
         self.trial_names = [os.path.basename(i) for i in subfolders]
         self.non_trial_folders = [i for i in self.trial_names if not self.is_trial_folder(i)]
         self.trial_names = [i for i in self.trial_names if self.is_trial_folder(i)]
         self.trials = [Trial(self.all_files,i,self.mode) for i in self.trial_names]
+        self.ntrials = len(self.trials)
         self.type = 'experiment'
         self.list_attribute = 'trials'
         self.finished = np.all([i.finished for i in getattr(self,self.list_attribute)])
     
+    def get_progress(self):
+        status = {}
+        if self.finished:
+            status = 'done'
+        else:
+            for taski in self.tasks:
+                status[taski] = sum([getattr(i,taski) for i in self.trials])
+        return status
+        
     def print_progress(self):
-        print(f'progress for experiment {self.name}')
-        for trial in self.trials:
-            trial.print_progress()
+        print(f'Animal:{self.animal}, Trial:{self.name}')
+        status = self.get_progress()
+        if status =='done':
+            print('    done')
+        else:
+            for taski in self.tasks:
+                task_name = self.get_printable_task_name(taski)
+                print(f'    {task_name}: {status[taski]}/{self.ntrials}')
     
     def check_unfinished_tasks(self):
         unfinished_tasks = self.get_unfinished_tasks()
@@ -339,10 +355,6 @@ class Trial(ProgressBase):
         return np.all([np.sum([keyword in i for i in files])==1 for keyword in file_combo])
     
     def check_overall_dlc(self):
-<<<<<<< HEAD
-=======
-
->>>>>>> b89e03735c7989d109a11d86e398c4be4a317ddb
         dlc_checks = [self.dlc_csv,self.dlc_h5,self.dlc_pickle]
         filtered_dlc_checks = [self.dlc_csv,self.dlc_filtered_csv,self.dlc_h5,self.dlc_pickle]
         self.has_dlc_output = self.check_list_of_patterns(dlc_checks)
