@@ -293,6 +293,7 @@ class Trial(ProgressBase):
         self.check_left_video()
         self.check_right_video()
         self.check_eye_dlc()
+        self.check_top_view_overall_dlc()
         self.check_top_view_left_dlc()
         self.check_top_view_right_dlc()
         self.type = 'trial'
