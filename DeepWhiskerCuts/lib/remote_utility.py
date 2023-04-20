@@ -8,6 +8,12 @@ import numpy as np
 from multiprocessing import Pool
 import pdb
 
+def run_python_script_on_all_servers(python_script,computers=computers):
+    for computeri in computers:
+        config = computers[computeri]
+        pdb.set_trace()
+        run_python_script(config,python_script)
+
 def run_command_on_server(server_config,cmd):
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy())
@@ -15,22 +21,34 @@ def run_command_on_server(server_config,cmd):
     stdin, stdout, stderr = client.exec_command(cmd)
     stdout, stderr = stdout.read().decode(), stderr.read().decode()
     client.close()
-    pdb.set_trace()
     return stdin, stdout, stderr
+
+def get_folders(folders):
+    if len(folders)>2:
+        folders = folders[:-2]
+        folders = folders.split(',')  
+        folders[0] = folders[0][1:]
+        folders[-1] = folders[-1][:-1]
+        return folders
+    else:
+        return []
 
 def get_animal_folders_from_server(server_config):
     _, folders, _ = run_python_script(server_config,'list_available_animal_folders.py')
-    folders =eval(folders)
+    if len(folders)>2:
+        folders = eval(folders[:-2])
+    else:
+        folders = []
+    # pdb.set_trace()
     return folders
 
 def get_trial_folders_from_server(server_config,animal_folder):
-    _, folders, _ = run_python_script(server_config,f'list_available_trial_folders.py --folder {animal_folder}')
-    # pdb.set_trace()
-    folders =eval(folders)  
-    return folders
+    animal_folder = os.path.join(server_config['data_path'],animal_folder)
+    _, folders, _ = run_python_script(server_config,f'list_available_trial_folders.py  "{animal_folder}"')
+    return get_folders(folders)
 
 def run_python_script(server_config,python_script_command):
-    return run_command_on_server(server_config,f"set PATH=%PATH%;{server_config['conda_path']}&& conda activate {server_config['dlc_environment']} && python {os.path.join(server_config['code_path'],python_script_command)}")
+    return run_command_on_server(server_config,f"conda activate {server_config['dlc_environment']} && python {os.path.join(server_config['code_path'],python_script_command)}")
 
 def process_folder_on_server(server_config,folder,trial):
     stdin, folders, stderr = run_python_script(server_config,f'process_experiment.py --folder "{folder}" --trial "{trial}"')
