@@ -1,4 +1,4 @@
 
 from DeepWhiskerCuts.lib.pipeline import *
-from folder_to_process import top_folder
+top_folder=r'\\dk-server.dk.ucsd.edu\data\afassihizakeri\Topviewmovies\ar37\2023_03_23_ 182302'
 analyze_left_video(top_folder)
