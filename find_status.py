@@ -5,5 +5,5 @@ import os
 import pdb
 
 status = get_current_pc_status()
-pdb.set_trace()
+# pdb.set_trace()
 pickle.dump(status,open(os.path.join(common_cache,f'{this_computer["tag"]}.status'),'wb'))

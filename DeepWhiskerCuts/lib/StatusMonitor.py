@@ -55,6 +55,7 @@ def get_current_pc_status():
         if len(trials)>0:
             for triali in trials:
                 animal_folder = os.path.join(this_computer['data_path'],animali)
+                # pdb.set_trace()
                 folders = os.listdir(animal_folder)
                 trial_folder = os.path.join(animal_folder,[i for i in folders if triali in i][0])
                 manager = ExperimentManager(trial_folder,this_computer['mode'])

@@ -333,7 +333,7 @@ class Trial(ProgressBase):
         self.right_dlc_pickle = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\w+.pickle')
 
         self.left_video = re.compile(f'Mask{str(self.name)}L.avi')
-        self.right_video = re.compile(f'Mirror{str(self.name)}_R.avi')
+        self.right_video = re.compile(f'Mirror{str(self.name)}R.avi')
 
     def get_files_containing_substring(self,substring):
         return [i for i in self.all_files if i.split(substring)[0]==self.name and i!= self.name]
@@ -364,7 +364,6 @@ class Trial(ProgressBase):
     
     def check_right_video(self):
         self.has_right_video = self.check_has_file_with_pattern(self.right_video)
-
     
     def check_downsampled_video(self):
         files = [i for i in self.all_files if re.match(self.mp4, i)!=None]
@@ -386,14 +385,16 @@ class Trial(ProgressBase):
         self.has_filtered_eye_dlc_output = self.check_list_of_patterns(eye_filtered_dlc_checks)
     
     def check_top_view_left_dlc(self):
-        self.top_view_dlc_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.csv')
-        self.top_view_dlc_filtered_csv = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+_filtered.csv')
-        self.top_view_dlc_h5 = re.compile(str(self.name)+rf'DLC_\w+shuffle{side_view_shuffle}_\d+.h5')
-        self.top_view_dlc_pickle 
-        self.check_dlc_output('Mirror','has_topview_left_dlc_output','has_filtered_topview_left_dlc_output')
+        dlc_checks = [self.left_dlc_csv,self.left_dlc_h5,self.left_dlc_pickle]
+        filtered_dlc_checks = [self.left_dlc_filtered_csv,self.left_dlc_h5,self.left_dlc_pickle]
+        self.has_topview_left_dlc_output = self.check_list_of_patterns(dlc_checks)
+        self.has_filtered_topview_left_dlc_output = self.check_list_of_patterns(filtered_dlc_checks)
     
     def check_top_view_right_dlc(self):
-        self.check_dlc_output('Mask','has_topview_right_dlc_output','has_filtered_topview_right_dlc_output')
+        dlc_checks = [self.right_dlc_csv,self.right_dlc_h5,self.right_dlc_pickle]
+        filtered_dlc_checks = [self.right_dlc_filtered_csv,self.right_dlc_h5,self.right_dlc_pickle]
+        self.has_topview_right_dlc_output = self.check_list_of_patterns(dlc_checks)
+        self.has_filtered_topview_right_dlc_output = self.check_list_of_patterns(filtered_dlc_checks)
 
     def check_top_view_overall_dlc(self):
         dlc_checks = [self.top_view_dlc_csv,self.top_view_dlc_h5,self.top_view_dlc_pickle]
