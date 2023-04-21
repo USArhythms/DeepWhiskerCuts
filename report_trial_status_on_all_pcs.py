@@ -1,6 +1,8 @@
 
-from DeepWhiskerCuts.setting.setting import common_cache,computers
+from DeepWhiskerCuts.setting.setting import common_cache,this_computer,computers
 from DeepWhiskerCuts.lib.StatusMonitor import load_common_trials
+# from DeepWhiskerCuts.lib.StatusMonitor import StatusMonitor,load_common_trials
+# from DeepWhiskerCuts.lib.remote_utility import run_python_script,pick_folder
 from DeepWhiskerCuts.lib.remote_utility import pick_folder
 import pickle
 import os
@@ -17,11 +19,11 @@ for computer in computers:
 animals = list(common_trials.keys())
 animal = pick_folder(animals,'pick an animal')
 trials = common_trials[animal]
-triali = pick_folder(list(trials),'pick an animal')
+trial = pick_folder(list(trials),'pick an trial')
 for computer in computers:
     try:
-        print(f'computer: {computer}')
-        manager = status[computer][animal][triali]
+        print(f'-------------computer: {computer}---------------')
+        manager = status[computer][animal][trial]
         manager.print_progress()
     except:
         pdb.set_trace()

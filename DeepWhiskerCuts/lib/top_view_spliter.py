@@ -11,16 +11,18 @@ from DeepWhiskerCuts.setting.dlc_setting import top_view_config_name
 import re
 def savemovies_LR(movie_name,head_angle,df,good_frames,extension,factor): 
     text = os.path.basename(movie_name);
-    video_name = (os.path.join(os.path.dirname(movie_name),text.split('DLC')[0]+'.avi'));
-    video_nameR = (os.path.join(os.path.dirname(movie_name),"Mirror"+text.split('DLC')[0]+"R.avi"));
-    video_nameL = (os.path.join(os.path.dirname(movie_name),"Mask"+text.split('DLC')[0]+"L.avi"));
+    video_name = (os.path.join(os.path.dirname(movie_name),text.split('videoDLC')[0]+'.avi'));
+    video_nameR = (os.path.join(os.path.dirname(movie_name),"Mirror"+text.split('videoDLC')[0]+"R.avi"));
+    video_nameL = (os.path.join(os.path.dirname(movie_name),"Mask"+text.split('videoDLC')[0]+"L.avi"));
     print(video_name)
+    # pdb.set_trace()
     process_and_split_video(video_name,video_nameR,good_frames,head_angle,df,factor,315,630,faceshift=60,flip=True)
     process_and_split_video(video_name,video_nameL,good_frames,head_angle,df,factor,0,315,faceshift=80)
 
 def process_and_split_video(input_name,output_name,good_frames,head_angle,df,factor,start_index,end_index,faceshift=60,flip=False):
     cap = cv2.VideoCapture(input_name)
     video = cv2.VideoWriter(output_name, 0, 40, (315,700))
+    # pdb.set_trace()
     if cap.isOpened():
         ret, frame = cap.read() 
         if ret == True:
@@ -48,7 +50,7 @@ def process_and_split_video(input_name,output_name,good_frames,head_angle,df,fac
 
 
 def readDLCfiles(data_path,Tag,trial):   
-    Xfiles = [os.path.join(data_path,i) for i in os.listdir(data_path) if re.match(r'\d+DLC', i) and 'filtered.csv' in i  and int( re.findall(r'\d+DLC', i)[0][:-3])==trial]
+    Xfiles = [os.path.join(data_path,i) for i in os.listdir(data_path) if re.match(r'\d+videoDLC', i) and 'filtered.csv' in i  and int( re.findall(r'\d+videoDLC', i)[0][:-8])==trial]
     try:
         filename = Xfiles[0]
         df = pd.read_csv(filename, header=2 ,usecols=['x','y','likelihood','x.1','y.1','likelihood.1'])

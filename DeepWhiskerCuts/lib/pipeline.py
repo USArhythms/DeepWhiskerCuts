@@ -3,7 +3,7 @@ import deeplabcut
 import os
 from DeepWhiskerCuts.lib.top_view_spliter import split_left_and_right_from_top_video
 from DeepWhiskerCuts.setting.setting import this_computer
-from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,left_shuffle,right_shuffle,top_shuffle
+from DeepWhiskerCuts.setting.dlc_setting import side_view_shuffle,eye_shuffle,whisker_shuffle,top_shuffle
 from tqdm import tqdm
 import pdb
 
@@ -58,14 +58,14 @@ def get_left_videos(data_path):
 
 def analyze_left_video(data_path,shuffle=left_shuffle):
     left_videos = get_left_videos(data_path)
-    analyze_videos(left_videos,'head_config',shuffle=shuffle)
+    analyze_videos(left_videos,'whisker_config',shuffle=shuffle)
 
 def get_right_videos(data_path):
     return [os.path.join(data_path,f) for f in os.listdir(data_path) if f.startswith('Mirror')  ] 
 
 def analyze_right_video(data_path,shuffle=right_shuffle):
     right_videos = get_right_videos(data_path)
-    analyze_videos(right_videos,'head_config',shuffle=shuffle)
+    analyze_videos(right_videos,'whisker_config',shuffle=shuffle)
 
 def run_dlc_with_error_handling(videos,deeplabcut_function):
     for videoi in tqdm(range(len(videos)),'processing videos'): 
